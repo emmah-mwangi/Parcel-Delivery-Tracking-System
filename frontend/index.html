@@ -1,3 +1,8 @@
+/**
+ * UPDATED INDEX.HTML
+ * Complete frontend with all required sections and forms
+ */
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,67 +13,178 @@
 </head>
 <body>
   <header>
-    <h1>Parcel Delivery Tracking</h1>
+    <h1>📦 Parcel Delivery Tracking</h1>
     <nav>
       <button id="nav-dashboard">Dashboard</button>
-      <button id="nav-register">Register Parcel</button>
+      <button id="nav-register">Register</button>
       <button id="nav-track">Track</button>
       <button id="nav-manage">Manage</button>
-      <button id="nav-cost">Cost Calculator</button>
+      <button id="nav-cost">Calculator</button>
+      <button id="nav-reports">Reports</button>
     </nav>
   </header>
+
   <main>
+    <!-- DASHBOARD -->
     <section id="dashboard" class="view">
       <h2>Dashboard</h2>
       <div id="stats">
-        <div class="card"><h3>Total Parcels</h3><p id="total-parcels">0</p></div>
-        <div class="card"><h3>Average Weight (kg)</h3><p id="avg-weight">0</p></div>
-        <div class="card"><h3>By Status</h3><pre id="by-status">{}</pre></div>
+        <div class="card">
+          <h3>Total Parcels</h3>
+          <p id="stat-total">0</p>
+        </div>
+        <div class="card">
+          <h3>Registered</h3>
+          <p id="stat-registered">0</p>
+        </div>
+        <div class="card">
+          <h3>In Transit</h3>
+          <p id="stat-transit">0</p>
+        </div>
+        <div class="card">
+          <h3>Delivered</h3>
+          <p id="stat-delivered">0</p>
+        </div>
+        <div class="card">
+          <h3>Delivery Rate</h3>
+          <p id="stat-rate">0%</p>
+        </div>
+        <div class="card">
+          <h3>Total Revenue</h3>
+          <p id="stat-revenue">Ksh 0</p>
+        </div>
       </div>
     </section>
 
+    <!-- REGISTER PARCEL -->
     <section id="register" class="view hidden">
       <h2>Register Parcel</h2>
       <form id="register-form">
-        <label>Sender Name<input name="sender_name" required></label>
-        <label>Receiver Name<input name="receiver_name" required></label>
-        <label>Origin<input name="origin"></label>
-        <label>Destination<input name="destination" required></label>
-        <label>Weight (kg)<input name="weight_kg" type="number" step="0.01" required></label>
-        <button type="submit">Register</button>
+        <fieldset>
+          <legend>Sender Details</legend>
+          <label>Sender Name<input name="senderName" required></label>
+          <label>Phone<input name="senderPhone" type="tel"></label>
+          <label>Email<input name="senderEmail" type="email"></label>
+          <label>Pickup Location<input name="pickupLocation"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Receiver Details</legend>
+          <label>Receiver Name<input name="receiverName" required></label>
+          <label>Phone<input name="receiverPhone" type="tel"></label>
+          <label>Email<input name="receiverEmail" type="email"></label>
+          <label>Delivery Location<input name="deliveryLocation" required></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Parcel Details</legend>
+          <label>Description<input name="parcelDescription"></label>
+          <label>Weight (kg)<input name="weight" type="number" step="0.01" required></label>
+          <label>Delivery Type
+            <select name="deliveryType">
+              <option value="standard">Standard</option>
+              <option value="express">Express (+300 KSh)</option>
+            </select>
+          </label>
+          <label><input name="isFragile" type="checkbox"> Fragile (+200 KSh)</label>
+        </fieldset>
+
+        <button type="submit">Register Parcel</button>
       </form>
       <div id="register-result"></div>
     </section>
 
+    <!-- TRACK PARCEL -->
     <section id="track" class="view hidden">
       <h2>Track Parcel</h2>
       <form id="track-form">
-        <label>Tracking Number<input name="tracking" required></label>
-        <button type="submit">Lookup</button>
+        <label>Search by:
+          <select id="track-type">
+            <option value="trackingNumber">Tracking Number</option>
+            <option value="senderName">Sender Name</option>
+            <option value="senderPhone">Sender Phone</option>
+            <option value="receiverName">Receiver Name</option>
+            <option value="receiverPhone">Receiver Phone</option>
+          </select>
+        </label>
+        <label>Search Value<input id="track-value" required></label>
+        <button type="submit">Track</button>
       </form>
-      <pre id="track-result"></pre>
+      <div id="track-result"></div>
     </section>
 
+    <!-- MANAGE PARCELS -->
     <section id="manage" class="view hidden">
       <h2>Manage Parcels</h2>
+      <div id="sort-controls">
+        <label>Sort by: <select id="sort-field">
+          <option value="trackingNumber">Tracking Number</option>
+          <option value="deliveryLocation">Destination</option>
+          <option value="status">Status</option>
+          <option value="cost">Cost</option>
+        </select></label>
+        <label>Algorithm: <select id="sort-algo">
+          <option value="bubble">Bubble Sort O(n²)</option>
+          <option value="selection">Selection Sort O(n²)</option>
+          <option value="merge">Merge Sort O(n log n)</option>
+        </select></label>
+        <button id="sort-btn">Sort</button>
+      </div>
       <table id="parcels-table">
-        <thead><tr><th>Tracking</th><th>Sender</th><th>Receiver</th><th>Destination</th><th>Weight</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Tracking</th>
+            <th>Sender</th>
+            <th>Receiver</th>
+            <th>Destination</th>
+            <th>Status</th>
+            <th>Cost</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
         <tbody></tbody>
       </table>
     </section>
 
+    <!-- COST CALCULATOR -->
     <section id="cost" class="view hidden">
       <h2>Cost Calculator</h2>
       <form id="cost-form">
-        <label>Weight (kg)<input name="weight_kg" type="number" step="0.01" required></label>
-        <label>Distance (km)<input name="distance_km" type="number" step="0.1" required></label>
-        <label>Speed<select name="speed"><option value="standard">Standard</option><option value="express">Express</option><option value="overnight">Overnight</option></select></label>
+        <label>Weight (kg)<input id="calc-weight" name="weight" type="number" step="0.01" value="1" required></label>
+        <label>Delivery Type
+          <select id="calc-type">
+            <option value="standard">Standard</option>
+            <option value="express">Express (+300 KSh)</option>
+          </select>
+        </label>
+        <label><input id="calc-fragile" type="checkbox"> Fragile (+200 KSh)</label>
         <button type="submit">Calculate</button>
       </form>
       <div id="cost-result"></div>
+      <div class="cost-breakdown">
+        <p><strong>Cost Formula:</strong></p>
+        <p>Base Fee: 300 KSh</p>
+        <p>Weight Charge: Weight × 100 KSh</p>
+        <p>Express: +300 KSh</p>
+        <p>Fragile: +200 KSh</p>
+      </div>
     </section>
 
+    <!-- REPORTS -->
+    <section id="reports" class="view hidden">
+      <h2>Reports</h2>
+      <div id="report-content"></div>
+      <button id="print-btn">Print Report</button>
+      <button id="export-csv-btn">Export to CSV</button>
+    </section>
   </main>
+
+  <!-- SCRIPTS -->
+  <script src="dataStructures.js"></script>
+  <script src="algorithms.js"></script>
+  <script src="storage.js"></script>
+  <script src="calculations.js"></script>
+  <script src="parcelManager.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
