@@ -124,8 +124,3 @@ class StatusStack {
     return this.stack;
   }
 }
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ParcelArray, ParcelQueue, StatusStack };
-}
