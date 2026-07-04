@@ -52,6 +52,47 @@ function updateDashboard() {
   $('#stat-delivered').textContent = stats.delivered;
   $('#stat-rate').textContent = stats.deliveryRate + '%';
   $('#stat-revenue').textContent = formatCost(stats.totalRevenue);
+
+  // Display recently registered parcels (last 5)
+  displayRecentParcels(parcels);
+}
+
+function displayRecentParcels(parcels) {
+  let recentContainer = $('#recent-parcels');
+  
+  if (parcels.length === 0) {
+    recentContainer.innerHTML = '<p style="color: #64748b;">No parcels registered yet.</p>';
+    return;
+  }
+
+  // Get last 5 parcels (most recent first)
+  let recentParcels = parcels.slice(-5).reverse();
+
+  let html = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse;">';
+  html += '<thead><tr style="background: #f1f5f9;">';
+  html += '<th style="padding: 10px; text-align: left; font-size: 13px; color: #334155;">Tracking</th>';
+  html += '<th style="padding: 10px; text-align: left; font-size: 13px; color: #334155;">Sender</th>';
+  html += '<th style="padding: 10px; text-align: left; font-size: 13px; color: #334155;">Receiver</th>';
+  html += '<th style="padding: 10px; text-align: left; font-size: 13px; color: #334155;">Destination</th>';
+  html += '<th style="padding: 10px; text-align: left; font-size: 13px; color: #334155;">Status</th>';
+  html += '<th style="padding: 10px; text-align: left; font-size: 13px; color: #334155;">Cost</th>';
+  html += '</tr></thead><tbody>';
+
+  recentParcels.forEach(p => {
+    html += '<tr style="border-bottom: 1px solid #e2e8f0;">';
+    html += `<td style="padding: 10px; font-weight: 500;">${p.trackingNumber}</td>`;
+    html += `<td style="padding: 10px;">${p.senderName}</td>`;
+    html += `<td style="padding: 10px;">${p.receiverName}</td>`;
+    html += `<td style="padding: 10px;">${p.deliveryLocation}</td>`;
+    html += `<td style="padding: 10px;"><span class="status-badge">${p.status}</span></td>`;
+    html += `<td style="padding: 10px; font-weight: 500;">${formatCost(p.cost)}</td>`;
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  html += '<p style="margin-top: 1rem; font-size: 12px; color: #64748b;">Showing last 5 registered parcels</p>';
+
+  recentContainer.innerHTML = html;
 }
 
 // ============================================
@@ -172,14 +213,53 @@ function editStatus(trackingNumber) {
   if (!parcel) return;
 
   let statusOptions = ['Registered', 'Dispatched', 'In Transit', 'Out For Delivery', 'Delivered', 'Cancelled', 'Returned'];
-  let newStatus = prompt(`Current: ${parcel.status}\n\nNew status:\n${statusOptions.join(', ')}`, parcel.status);
-
-  if (newStatus && statusOptions.includes(newStatus)) {
+  
+  // Create modal dialog
+  let modal = document.createElement('div');
+  modal.id = 'status-modal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:1000;';
+  
+  let modalContent = document.createElement('div');
+  modalContent.style.cssText = 'background:#fff;padding:2rem;border-radius:8px;max-width:500px;width:90%;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+  
+  modalContent.innerHTML = `
+    <h3 style="color: #0D3B66; margin-top: 0; margin-bottom: 1rem;">Update Parcel Status</h3>
+    <p style="margin-bottom: 0.5rem;"><strong>Tracking:</strong> ${parcel.trackingNumber}</p>
+    <p style="margin-bottom: 1rem;"><strong>Current Status:</strong> <span class="status-badge">${parcel.status}</span></p>
+    <label style="margin-bottom: 1rem; font-weight: 500;">New Status:</label>
+    <select id="new-status-select" style="width: 100%; padding: 0.6rem; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 1.5rem; font-size: 14px;">
+      ${statusOptions.map(status => `<option value="${status}" ${status === parcel.status ? 'selected' : ''}>${status}</option>`).join('')}
+    </select>
+    <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+      <button class="action-btn" id="cancel-status-btn" style="background: #64748b; margin: 0;">Cancel</button>
+      <button class="action-btn" id="save-status-btn" style="margin: 0;">Update Status</button>
+    </div>
+  `;
+  
+  modal.appendChild(modalContent);
+  document.body.appendChild(modal);
+  
+  // Handle cancel
+  document.getElementById('cancel-status-btn').onclick = () => {
+    document.body.removeChild(modal);
+  };
+  
+  // Handle save
+  document.getElementById('save-status-btn').onclick = () => {
+    let newStatus = document.getElementById('new-status-select').value;
     updateParcelStatus(trackingNumber, newStatus);
     loadParcelsTable();
     updateDashboard();
-    alert('Status updated!');
-  }
+    document.body.removeChild(modal);
+    alert('Status updated successfully!');
+  };
+  
+  // Close on background click
+  modal.onclick = (e) => {
+    if (e.target === modal) {
+      document.body.removeChild(modal);
+    }
+  };
 }
 
 function deleteParcelAction(trackingNumber) {

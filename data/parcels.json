@@ -1,0 +1,140 @@
+[
+  {
+    "tracking_number": "0610FAE8",
+    "sender_name": "John Doe",
+    "receiver_name": "Jane Smith",
+    "destination": "Nairobi, Kenya",
+    "origin": "Mombasa, Kenya",
+    "weight_kg": 5.5,
+    "status": "registered",
+    "registered_at": "2026-07-04T16:06:11.914698",
+    "history": [
+      {
+        "status": "registered",
+        "timestamp": "2026-07-04T16:06:11.915008",
+        "location": "Mombasa, Kenya"
+      }
+    ]
+  },
+  {
+    "tracking_number": "B6BCB556",
+    "sender_name": "Alice",
+    "receiver_name": "Bob",
+    "destination": "Kisumu",
+    "origin": "Nairobi",
+    "weight_kg": 2.0,
+    "status": "registered",
+    "registered_at": "2026-07-04T16:06:11.917707",
+    "history": [
+      {
+        "status": "registered",
+        "timestamp": "2026-07-04T16:06:11.917726",
+        "location": "Nairobi"
+      }
+    ]
+  },
+  {
+    "tracking_number": "93B3F15C",
+    "sender_name": "Charlie",
+    "receiver_name": "Diana",
+    "destination": "Eldoret",
+    "origin": "Nakuru",
+    "weight_kg": 3.5,
+    "status": "registered",
+    "registered_at": "2026-07-04T16:06:11.920939",
+    "history": [
+      {
+        "status": "registered",
+        "timestamp": "2026-07-04T16:06:11.920957",
+        "location": "Nakuru"
+      }
+    ]
+  },
+  {
+    "tracking_number": "67F52056",
+    "sender_name": "Sender A",
+    "receiver_name": "Receiver B",
+    "destination": "Nairobi",
+    "origin": "Mombasa",
+    "weight_kg": 10.0,
+    "status": "picked_up",
+    "registered_at": "2026-07-04T16:06:26.855766",
+    "history": [
+      {
+        "status": "registered",
+        "timestamp": "2026-07-04T16:06:26.855789",
+        "location": "Mombasa"
+      },
+      {
+        "status": "picked_up",
+        "location": "Nairobi",
+        "timestamp": "2026-07-04T16:06:26.876616",
+        "notes": "Package picked up from Mombasa"
+      }
+    ],
+    "current_location": "Nairobi"
+  },
+  {
+    "tracking_number": "4099CF5F",
+    "sender_name": "Sender A",
+    "receiver_name": "Receiver B",
+    "destination": "Nairobi",
+    "origin": "Mombasa",
+    "weight_kg": 10.0,
+    "status": "picked_up",
+    "registered_at": "2026-07-04T16:06:43.418621",
+    "history": [
+      {
+        "status": "registered",
+        "timestamp": "2026-07-04T16:06:43.418639",
+        "location": "Mombasa"
+      },
+      {
+        "status": "picked_up",
+        "timestamp": "2026-07-04T16:06:43.463642",
+        "location": "Collection Center"
+      }
+    ],
+    "current_location": "Collection Center"
+  },
+  {
+    "tracking_number": "45C9D595",
+    "sender_name": "Sender C",
+    "receiver_name": "Receiver D",
+    "destination": "Kisumu",
+    "origin": "Eldoret",
+    "weight_kg": 5.0,
+    "status": "picked_up",
+    "registered_at": "2026-07-04T16:06:43.420521",
+    "history": [
+      {
+        "status": "registered",
+        "timestamp": "2026-07-04T16:06:43.420532",
+        "location": "Eldoret"
+      },
+      {
+        "status": "picked_up",
+        "timestamp": "2026-07-04T16:06:43.465279",
+        "location": "Collection Center"
+      }
+    ],
+    "current_location": "Collection Center"
+  },
+  {
+    "tracking_number": "BBF6D48E",
+    "sender_name": "Sender E",
+    "receiver_name": "Receiver F",
+    "destination": "Mombasa",
+    "origin": "Nairobi",
+    "weight_kg": 15.0,
+    "status": "registered",
+    "registered_at": "2026-07-04T16:06:43.421948",
+    "history": [
+      {
+        "status": "registered",
+        "timestamp": "2026-07-04T16:06:43.421957",
+        "location": "Nairobi"
+      }
+    ]
+  }
+]
