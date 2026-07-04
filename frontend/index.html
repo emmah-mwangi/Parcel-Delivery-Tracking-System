@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parcel Delivery Tracking System</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+      <div class="logo">
+        <h2> Parcel Tracker</h2>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="#" class="nav-link active" data-page="dashboard">Dashboard</a></li>
+        <li><a href="#" class="nav-link" data-page="register">Register Parcel</a></li>
+        <li><a href="#" class="nav-link" data-page="tracking">Track Parcel</a></li>
+        <li><a href="#" class="nav-link" data-page="manage">Manage Parcels</a></li>
+        <li><a href="#" class="nav-link" data-page="calculator">Cost Calculator</a></li>
+        <li><a href="#" class="nav-link" data-page="reports">Reports</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Dashboard Page -->
+      <section id="dashboard" class="page active">
+        <h1>Dashboard</h1>
+        <div class="stats">
+          <div class="stat-card">
+            <h3>Total Parcels</h3>
+            <p id="total-parcels">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>In Transit</h3>
+            <p id="in-transit">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Delivered</h3>
+            <p id="delivered">0</p>
+          </div>
+          <div class="stat-card">
+            <h3>Delivery Rate</h3>
+            <p id="delivery-rate">0%</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Register Parcel Page -->
+      <section id="register" class="page hidden">
+        <h1>Register New Parcel</h1>
+        <form id="register-form">
+          <div class="form-group">
+            <label>Sender Name *</label>
+            <input type="text" id="sender" placeholder="John Doe" required>
+          </div>
+          <div class="form-group">
+            <label>Receiver Name *</label>
+            <input type="text" id="receiver" placeholder="Jane Smith" required>
+          </div>
+          <div class="form-group">
+            <label>Destination *</label>
+            <select id="destination" required>
+              <option value="">Select destination</option>
+              <option value="Nairobi">Nairobi</option>
+              <option value="Mombasa">Mombasa</option>
+              <option value="Kisumu">Kisumu</option>
+              <option value="Nakuru">Nakuru</option>
+              <option value="Kigali">Kigali</option>
+              <option value="Uganda">Uganda</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Weight (kg) *</label>
+            <input type="number" id="weight" step="0.1" placeholder="e.g., 2.5" required>
+          </div>
+          <div class="form-group">
+            <label>Parcel Details</label>
+            <textarea id="description" rows="3" placeholder="Describe the parcel contents..."></textarea>
+          </div>
+          <button type="submit" class="btn">Register Parcel</button>
+        </form>
+        <div id="register-result"></div>
+      </section>
+
+      <!-- Track Parcel Page -->
+      <section id="tracking" class="page hidden">
+        <h1>Track Parcel</h1>
+        <form id="track-form">
+          <div class="form-group">
+            <label>Tracking Number</label>
+            <input type="text" id="track-id" placeholder="e.g., KE-1234" required>
+          </div>
+          <button type="submit" class="btn">Track</button>
+        </form>
+        <div id="track-result"></div>
+      </section>
+
+      <!-- Manage Parcels Page -->
+      <section id="manage" class="page hidden">
+        <h1>Manage Parcels</h1>
+        <div class="table-container">
+          <table id="parcels-table">
+            <thead>
+              <tr>
+                <th>Tracking ID</th>
+                <th>Sender</th>
+                <th>Receiver</th>
+                <th>Destination</th>
+                <th>Weight</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="parcels-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Cost Calculator Page -->
+      <section id="calculator" class="page hidden">
+        <h1>Delivery Cost Calculator</h1>
+        <form id="calc-form">
+          <div class="form-group">
+            <label>Weight (kg) *</label>
+            <input type="number" id="weight" step="0.1" required>
+          </div>
+          <div class="form-group">
+            <label>Destination *</label>
+            <select id="destination" required>
+              <option value="Nairobi">Nairobi</option>
+              <option value="Mombasa">Mombasa</option>
+              <option value="Kisumu">Kisumu</option>
+              <option value="Nakuru">Nakuru</option>
+              <option value="Kigali">Kigali</option>
+              <option value="Uganda">Uganda</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Delivery Type *</label>
+            <select id="delivery-type" required>
+              <option value="Standard">Standard</option>
+              <option value="Express">Express</option>
+            </select>
+          </div>
+          <button type="submit" class="btn">Calculate Cost</button>
+        </form>
+        <div id="calc-result"></div>
+      </section>
+
+      <!-- Reports Page -->
+      <section id="reports" class="page hidden">
+        <h1>Reports</h1>
+        <div class="stats" id="report-stats"></div>
+        <div class="table-container">
+          <table id="report-table">
+            <thead>
+              <tr>
+                <th>Tracking ID</th>
+                <th>Sender</th>
+                <th>Receiver</th>
+                <th>Destination</th>
+                <th>Weight</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="report-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
