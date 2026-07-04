@@ -1,128 +1,126 @@
-"""
-PARCEL MANAGEMENT MODULE
-========================
+""" 
+4. Parcel_Management.py
+Responsibilities
+Update parcel status
+Move parcels through delivery stages
+Process deliveries in order
+Mark parcels as delivered
+Remove completed deliveries from queue
+DSA to Use
+Queue (FIFO delivery process)
+Array/List 
 
-This module handles parcel delivery processing and status updates.
-
-DATA STRUCTURES USED:
-1. Queue (delivery_queue) - FIFO processing
-   - Parcels processed in arrival order
-   - First parcel added is first to be delivered
-   - Uses deque for efficient O(1) operations
-
-2. Array/List (parcel_database) - storage
-   - All parcels stored here
-   - Used for searching and updates
-
-KEY ALGORITHMS:
-- Linear Search: O(n) - find parcel by tracking ID
-- Queue operations: O(1) - add/remove from queue
 """
 
+"""
+Parcel_Management.py
+DSA Used:
+  - Queue (deque) : FIFO delivery pipeline: processes parcels in arrival order
+  - Array/List    : parcel_database stores all parcel objects (to be shared with other modules)
+"""
+
+
+from collections import deque
 from datetime import datetime
-from parcel_core import Parcel, parcel_database, delivery_queue, DELIVERY_STAGES, ensure_parcel, enqueue_parcel
 
 
-# ========== SEARCHING ==========
+class Parcel:
+    def __init__(self, tracking_id, sender, receiver):
+        self.tracking_id = tracking_id
+        self.sender      = sender
+        self.receiver    = receiver
+        self.status      = "Registered"
+        self.history     = [("Registered", datetime.now().strftime("%Y-%m-%d %H:%M"))]
+
+    def __str__(self):
+        return f"[{self.tracking_id}] From: {self.sender}  To: {self.receiver}  -  Status: {self.status}"
+
+
+
+# DATA STRUCTURES
+
+parcel_database = []     # Array/List- master record of all parcels
+
+delivery_queue  = deque()  # Queue (deque)- FIFO delivery pipeline
+
+# Delivery stages every parcel passes through in order
+DELIVERY_STAGES = [
+    "Registered",
+    "Picked Up",
+    "In Transit",
+    "Out for Delivery",
+    "Delivered"
+]
+
+# HELPER: find a parcel by tracking ID (Linear Search O(n))
 
 def find_parcel(tracking_id):
     """
-    Find a parcel by tracking ID using LINEAR SEARCH.
-    
-    Algorithm: Linear Search
-    - Check each parcel one by one
-    - Stop when found
-    - Time: O(n) - may check all parcels
-    - Space: O(1) - no extra storage
-    
-    Args:
-        tracking_id: The ID to search for (e.g., "KE-1234")
-    
-    Returns:
-        Parcel object if found, None otherwise
+    Linear Search through parcel_database.
+    Time Complexity  : O(n)
+    Space Complexity : O(1)
     """
     for parcel in parcel_database:
         if parcel.tracking_id == tracking_id.upper():
             return parcel
     return None
 
-
-# ========== QUEUE OPERATIONS ==========
+# 1: Add parcel to the delivery queue
 
 def add_to_queue(tracking_id):
-    """
-    Add a parcel to the delivery queue.
-    
-    Queue behavior: FIFO (First In, First Out)
-    - First parcel added will be processed first
-    - Like a real queue at a store
-    """
+   
     parcel = find_parcel(tracking_id)
 
     if parcel is None:
         print(f"\n  Error: No parcel found with ID '{tracking_id.upper()}'.")
         return
 
+    # Check it isn't already in the queue
     if parcel in delivery_queue:
-        print(f"\n  '{parcel.tracking_id}' is already in queue.")
+        print(f"\n  '{parcel.tracking_id}' is already in the delivery queue.")
         return
 
-    enqueue_parcel(parcel)
+    delivery_queue.append(parcel)    # ENQUEUE: add to back of queue O(1)
     print(f"\n  Added to queue: {parcel}")
-    print(f"  Queue size: {len(delivery_queue)} parcel(s)")
+    print(f"  Queue size    : {len(delivery_queue)} parcel(s)")
 
+# 2: Process the next parcel in queue
 
 def process_next():
-    """
-    Process the next parcel in the delivery queue.
     
-    Steps:
-    1. Take first parcel from queue (popleft)
-    2. Move to next delivery stage
-    3. If not delivered, add back to queue
-    4. If delivered, remove from queue completely
-    """
     if not delivery_queue:
         print("\n  Queue is empty. No parcels to process.")
         return
 
-    # Get first parcel (FIFO - first in, first out)
-    parcel = delivery_queue.popleft()
-    
-    # Find current stage index
+    parcel = delivery_queue.popleft()    
+
     current_index = DELIVERY_STAGES.index(parcel.status)
 
-    # Check if already delivered
+    # Already at final stage
     if current_index >= len(DELIVERY_STAGES) - 1:
         print(f"\n  '{parcel.tracking_id}' is already Delivered.")
         return
 
-    # Move to next stage
-    next_stage = DELIVERY_STAGES[current_index + 1]
-    parcel.status = next_stage
-    
-    # Add to history (Stack-like - newest on top)
+    # Advance one stage
+    next_stage     = DELIVERY_STAGES[current_index + 1]
+    parcel.status  = next_stage
     parcel.history.append((next_stage, datetime.now().strftime("%Y-%m-%d %H:%M")))
 
-    print(f"\n  Processed: {parcel.tracking_id}")
+    print(f"\n  Processed : {parcel.tracking_id}")
     print(f"  New Status: {parcel.status}")
 
-    # If not delivered, add back to queue for next stage
+    # If not yet delivered, re-enqueue for the next stage
     if parcel.status != "Delivered":
-        enqueue_parcel(parcel)
-        print("  Re-queued for next stage.")
+        delivery_queue.append(parcel)    
+        print(f"  Re-queued for next stage.")
     else:
-        print(f"  Delivered to {parcel.receiver}. Removed from queue.")
+        print(f"  Parcel delivered to {parcel.receiver}. Removed from queue.")
 
+
+# 3: Update parcel status manually
 
 def update_status(tracking_id, new_status):
-    """
-    Manually update parcel status.
-    
-    Args:
-        tracking_id: Parcel ID to update
-        new_status: New status from DELIVERY_STAGES list
-    """
+   
     if new_status not in DELIVERY_STAGES:
         print(f"\n  Invalid status. Choose from: {', '.join(DELIVERY_STAGES)}")
         return
@@ -133,13 +131,10 @@ def update_status(tracking_id, new_status):
         print(f"\n  No parcel found with ID '{tracking_id.upper()}'.")
         return
 
-    # Update status
     parcel.status = new_status
-    
-    # Add to history
     parcel.history.append((new_status, datetime.now().strftime("%Y-%m-%d %H:%M")))
 
-    # If delivered, remove from queue
+    # If manually marked Delivered, remove from active queue
     if new_status == "Delivered" and parcel in delivery_queue:
         delivery_queue.remove(parcel)
         print(f"\n  Status updated to '{new_status}'. Removed from queue.")
@@ -147,16 +142,19 @@ def update_status(tracking_id, new_status):
         print(f"\n  Status updated to '{new_status}'.")
 
 
+# 4: Mark parcel as delivered directly
+
 def mark_delivered(tracking_id):
-    """Quick way to mark a parcel as delivered"""
-    update_status(tracking_id, "Delivered")
+   update_status(tracking_id, "Delivered")
 
 
-# ========== VIEW FUNCTIONS ==========
+
+# 5: View current delivery queue
+
 
 def view_queue():
-    """Show current delivery queue (FIFO order)"""
-    print("\n--- Delivery Queue (FIFO Order) ---")
+    
+    print("\n--- Current Delivery Queue (FIFO Order) ---")
 
     if not delivery_queue:
         print("  Queue is empty.")
@@ -166,15 +164,18 @@ def view_queue():
     for position, parcel in enumerate(delivery_queue, start=1):
         label = "  <- NEXT" if position == 1 else ""
         print(f"  #{position}{label}")
-        print(f"    Tracking: {parcel.tracking_id}")
-        print(f"    From: {parcel.sender} → {parcel.receiver}")
-        print(f"    Status: {parcel.status}")
+        print(f"    Tracking : {parcel.tracking_id}")
+        print(f"    From     : {parcel.sender}  ->  {parcel.receiver}")
+        print(f"    Status   : {parcel.status}")
         print()
 
 
+# 6: View all parcels in the database
+
+
 def view_all_parcels():
-    """Show all parcels in database with their history"""
-    print("\n--- All Parcels ---")
+   
+    print("\n--- All Parcels in System ---")
 
     if not parcel_database:
         print("  No parcels registered yet.")
@@ -184,59 +185,58 @@ def view_all_parcels():
         print(f"\n  {parcel}")
         print(f"  History:")
         for status, timestamp in parcel.history:
-            print(f"    {timestamp} → {status}")
+            print(f"    {timestamp}  ->  {status}")
 
-    # Summary
-    total = len(parcel_database)
-    in_queue = len(delivery_queue)
-    delivered = sum(1 for p in parcel_database if p.status == 'Delivered')
-    
-    print(f"\n  Total: {total} | In Queue: {in_queue} | Delivered: {delivered}")
+    print(f"\n  Total: {len(parcel_database)} parcel(s) | "
+          f"In queue: {len(delivery_queue)} | "
+          f"Delivered: {sum(1 for p in parcel_database if p.status == 'Delivered')}")
 
 
-# ========== TEST MENU ==========
+# INTERACTIVE MENU(Sample)
 
 if __name__ == "__main__":
-    # Add some sample data
-    from Parcel_Registration import register_parcel
+
+    # Sample data so the menu has something to work with
+    from Parcel_Registration import register_parcel, parcel_database as reg_db
 
     sample = [
-        ("Alice Kamau", "Brian Odhiambo"),
-        ("Carol Wanjiku", "David Mwangi"),
-        ("Eve Adhiambo", "Frank Kipchoge"),
+        ("Alice Kamau",    "Brian Odhiambo"),
+        ("Carol Wanjiku",  "David Mwangi"),
+        ("Eve Adhiambo",   "Frank Kipchoge"),
     ]
     for sender, receiver in sample:
         p = register_parcel(sender, receiver)
         if p:
-            add_to_queue(p.tracking_id)
+            parcel_database.append(p)
+            delivery_queue.append(p)
 
-    print("\n=== PARCEL MANAGEMENT ===")
+    print("\n=== PARCEL MANAGEMENT SYSTEM ===")
 
     while True:
-        print("\n1. Add to Queue")
+        print("\n1. Add Parcel to Queue")
         print("2. Process Next Delivery")
-        print("3. Update Status")
-        print("4. Mark Delivered")
-        print("5. View Queue")
+        print("3. Update Parcel Status")
+        print("4. Mark Parcel as Delivered")
+        print("5. View Delivery Queue")
         print("6. View All Parcels")
         print("7. Exit")
-        choice = input("Choose (1-7): ").strip()
+        choice = input("Select an option (1-7): ").strip()
 
         if choice == "1":
-            tid = input("Tracking ID: ").strip()
+            tid = input("Enter Tracking ID to queue: ").strip()
             add_to_queue(tid)
 
         elif choice == "2":
             process_next()
 
         elif choice == "3":
-            tid = input("Tracking ID: ").strip()
+            tid = input("Enter Tracking ID    : ").strip()
             print(f"  Stages: {', '.join(DELIVERY_STAGES)}")
-            status = input("New Status: ").strip()
-            update_status(tid, status)
+            new_status = input("Enter New Status     : ").strip()
+            update_status(tid, new_status)
 
         elif choice == "4":
-            tid = input("Tracking ID: ").strip()
+            tid = input("Enter Tracking ID: ").strip()
             mark_delivered(tid)
 
         elif choice == "5":
@@ -246,7 +246,8 @@ if __name__ == "__main__":
             view_all_parcels()
 
         elif choice == "7":
-            print("Goodbye!")
+            print("Exiting Management System. Goodbye!")
             break
+
         else:
-            print("Invalid choice.")
+            print("Invalid choice! Please select 1-7.")
