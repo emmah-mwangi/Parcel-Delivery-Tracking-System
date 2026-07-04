@@ -65,7 +65,7 @@ $('#register-form').onsubmit = e => {
 
   // Validate
   if (!data.senderName || !data.receiverName || !data.weight || !data.deliveryLocation) {
-    $('#register-result').innerHTML = '<p style="color:red;">❌ Fill all required fields</p>';
+    $('#register-result').innerHTML = '<p style="color:red;">Error: Fill all required fields</p>';
     return;
   }
 
@@ -73,11 +73,11 @@ $('#register-form').onsubmit = e => {
   let result = createParcel(data);
 
   if (result.error) {
-    $('#register-result').innerHTML = `<p style="color:red;">❌ ${result.error}</p>`;
+    $('#register-result').innerHTML = `<p style="color:red;">Error: ${result.error}</p>`;
   } else {
     $('#register-result').innerHTML = `
       <div style="background:#d1fae5; padding:12px; border-radius:6px; color:green;">
-        ✅ <strong>Parcel Registered!</strong><br>
+        Success: <strong>Parcel Registered!</strong><br>
         Tracking: <strong>${result.trackingNumber}</strong><br>
         Cost: <strong>${formatCost(result.cost)}</strong>
       </div>
@@ -99,7 +99,7 @@ $('#track-form').onsubmit = e => {
   let result = trackParcel(searchValue, searchType);
 
   if (result.error) {
-    $('#track-result').innerHTML = `<p style="color:red;">❌ ${result.error}</p>`;
+    $('#track-result').innerHTML = `<p style="color:red;">Error: ${result.error}</p>`;
     return;
   }
 
@@ -254,7 +254,7 @@ function loadReport() {
 
   let reportHtml = `
     <div style="background:#fff; padding:16px; border-radius:8px;">
-      <h3>📊 Parcel Statistics</h3>
+      <h3>Parcel Statistics</h3>
       <p>Total Parcels: <strong>${stats.totalParcels}</strong></p>
       <p>Registered: <strong>${stats.registered}</strong></p>
       <p>In Transit: <strong>${stats.inTransit}</strong></p>
@@ -262,10 +262,10 @@ function loadReport() {
       <p>Delivery Rate: <strong>${stats.deliveryRate}%</strong></p>
       <p>Total Revenue: <strong>${formatCost(stats.totalRevenue)}</strong></p>
       
-      <h3>📍 Most Common Destination</h3>
+      <h3>Most Common Destination</h3>
       <p>${mostCommon || 'N/A'}</p>
       
-      <h3>⏳ Processing Queue (FIFO)</h3>
+      <h3>Processing Queue (FIFO)</h3>
       <p>Parcels waiting: ${queue.length}</p>
       <p>Next to process: ${queue[0] || 'None'}</p>
     </div>
