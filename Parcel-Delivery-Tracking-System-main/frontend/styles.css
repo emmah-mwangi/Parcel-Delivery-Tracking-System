@@ -1,0 +1,392 @@
+* {
+  box-sizing: border-box;
+  font-family: Inter, system-ui, Segoe UI, Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f5f7fb;
+  color: #0f172a;
+}
+
+header {
+  background: linear-gradient(90deg, #0ea5a4, #6366f1);
+  color: #fff;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+nav button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+nav button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #fff;
+}
+
+main {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.view {
+  min-height: 400px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* DASHBOARD CARDS */
+#stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(2, 6, 23, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(2, 6, 23, 0.12);
+}
+
+.card h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card p {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0ea5a4;
+}
+
+/* FORMS */
+form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(2, 6, 23, 0.08);
+  margin-bottom: 20px;
+  max-width: 600px;
+}
+
+fieldset {
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+fieldset:last-child {
+  margin-bottom: 0;
+}
+
+legend {
+  padding: 0 8px;
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+label:last-child {
+  margin-bottom: 0;
+}
+
+input,
+select {
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #0ea5a4;
+  box-shadow: 0 0 0 3px rgba(14, 165, 164, 0.1);
+}
+
+input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+button[type='submit'],
+.action-btn {
+  background: #0ea5a4;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-right: 8px;
+}
+
+button[type='submit']:hover,
+.action-btn:hover {
+  background: #0d9488;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(14, 165, 164, 0.3);
+}
+
+.action-btn.delete {
+  background: #ef4444;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.action-btn.delete:hover {
+  background: #dc2626;
+}
+
+#sort-controls {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+#sort-controls label {
+  margin: 0;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+}
+
+#sort-controls select {
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+#sort-btn {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(2, 6, 23, 0.08);
+}
+
+thead {
+  background: #f1f5f9;
+}
+
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #334155;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover {
+  background: #f8fafc;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* RESULT MESSAGES */
+#register-result,
+#track-result,
+#cost-result {
+  margin-top: 16px;
+}
+
+/* COST BREAKDOWN */
+.cost-breakdown {
+  background: #fffbeb;
+  padding: 16px;
+  border-radius: 6px;
+  margin-top: 16px;
+  border-left: 4px solid #f59e0b;
+}
+
+.cost-breakdown p {
+  margin: 6px 0;
+  font-size: 13px;
+  color: #78350f;
+}
+
+.cost-breakdown strong {
+  color: #d97706;
+}
+
+/* REPORT */
+#report-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(2, 6, 23, 0.08);
+}
+
+#report-content h3 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: #0f172a;
+  font-size: 16px;
+}
+
+#report-content p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+/* PRINT STYLES */
+@media print {
+  header,
+  nav,
+  #sort-controls,
+  .action-btn,
+  button[type='submit'] {
+    display: none;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .card,
+  form,
+  table {
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+  }
+
+  nav button {
+    width: 100%;
+    text-align: left;
+  }
+
+  #stats {
+    grid-template-columns: 1fr;
+  }
+
+  form {
+    max-width: 100%;
+  }
+
+  fieldset {
+    padding: 12px;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  th,
+  td {
+    padding: 8px;
+  }
+
+  .action-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    margin-right: 4px;
+  }
+
+  #sort-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #sort-controls label {
+    width: 100%;
+  }
+
+  #sort-controls select,
+  #sort-btn {
+    width: 100%;
+  }
+}
