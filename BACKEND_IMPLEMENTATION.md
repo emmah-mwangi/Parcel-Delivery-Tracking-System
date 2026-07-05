@@ -1,29 +1,29 @@
-# Parcel Delivery Tracking System - Backend Implementation
+  Parcel Delivery Tracking System - Backend Implementation
 
-## 🎯 Overview
+     Overview
 Complete backend logic using **Vanilla JavaScript** and **Local Storage** with clear implementation of Data Structures and Algorithms for academic presentation.
 
 ---
 
-## 📁 File Structure
+     File Structure
 
 ```
 frontend/
-├── index.html              # Main UI (already complete)
-├── styles.css              # Styling (enhanced)
-├── app.js                  # Main application logic
-├── dataStructures.js       # Array, Queue, Stack classes
-├── algorithms.js           # Search & Sort algorithms
-├── storage.js              # Local Storage operations
-├── calculations.js         # Cost & statistics calculations
-└── parcelManager.js        # Business logic
+├── index.html                Main UI (already complete)
+├── styles.css                Styling (enhanced)
+├── app.js                    Main application logic
+├── dataStructures.js         Array, Queue, Stack classes
+├── algorithms.js             Search & Sort algorithms
+├── storage.js                Local Storage operations
+├── calculations.js           Cost & statistics calculations
+└── parcelManager.js          Business logic
 ```
 
 ---
 
-## 🏗️ Data Structures Implemented
+     Data Structures Implemented
 
-### 1. **ARRAY - Store All Parcels**
+    1. **ARRAY - Store All Parcels**
 ```javascript
 class ParcelArray {
   add(parcel)                           // O(1)
@@ -38,7 +38,7 @@ class ParcelArray {
 - **Used for**: Storing all parcel objects
 - **Access Pattern**: Direct array indexing
 
-### 2. **QUEUE - Process Parcels (FIFO)**
+    2. **QUEUE - Process Parcels (FIFO)**
 ```javascript
 class ParcelQueue {
   enqueue(parcel)   // Add to end      O(1)
@@ -53,7 +53,7 @@ class ParcelQueue {
 - **Example**: PK001 → PK002 → PK003
 - **Status**: When parcel registered → added to queue
 
-### 3. **STACK - Status History (LIFO)**
+    3. **STACK - Status History (LIFO)**
 ```javascript
 class StatusStack {
   push(status, timestamp)   // Add to top      O(1)
@@ -69,9 +69,9 @@ class StatusStack {
 
 ---
 
-## 🔍 Algorithms Implemented
+     Algorithms Implemented
 
-### 1. **LINEAR SEARCH**
+    1. **LINEAR SEARCH**
 ```javascript
 function linearSearch(parcels, fieldName, searchValue)
 ```
@@ -86,7 +86,7 @@ function linearSearch(parcels, fieldName, searchValue)
   - Receiver Phone
 - **Process**: Check every parcel one by one
 
-### 2. **BINARY SEARCH**
+    2. **BINARY SEARCH**
 ```javascript
 function binarySearch(sortedParcels, trackingNumber)
 ```
@@ -100,7 +100,7 @@ function binarySearch(sortedParcels, trackingNumber)
   3. Eliminate half of remaining elements
   4. Repeat until found
 
-### 3. **BUBBLE SORT**
+    3. **BUBBLE SORT**
 ```javascript
 function bubbleSort(parcels, fieldName)
 ```
@@ -113,7 +113,7 @@ function bubbleSort(parcels, fieldName)
   3. Repeat n times
 - **Use Case**: Educational demonstration
 
-### 4. **SELECTION SORT**
+    4. **SELECTION SORT**
 ```javascript
 function selectionSort(parcels, fieldName)
 ```
@@ -127,7 +127,7 @@ function selectionSort(parcels, fieldName)
   4. Repeat
 - **Use Case**: Simple teaching example
 
-### 5. **MERGE SORT**
+    5. **MERGE SORT**
 ```javascript
 function mergeSort(parcels, fieldName)
 function merge(left, right, fieldName)
@@ -143,17 +143,17 @@ function merge(left, right, fieldName)
 
 ---
 
-## 📊 Features Implemented
+     Features Implemented
 
-### **Dashboard**
-- ✅ Total Parcels count
-- ✅ Registered count
-- ✅ In Transit count
-- ✅ Delivered count
-- ✅ Delivery Rate: (Delivered ÷ Total × 100)
-- ✅ Total Revenue: Sum of all costs
+    **Dashboard**
+-   Total Parcels count
+-   Registered count
+-   In Transit count
+-   Delivered count
+-   Delivery Rate: (Delivered ÷ Total × 100)
+-   Total Revenue: Sum of all costs
 
-### **Register Parcel**
+    **Register Parcel**
 ```
 FORM FIELDS:
 ├── Sender Details
@@ -183,16 +183,16 @@ AUTOMATIC ACTIONS:
 → Add to processing queue
 ```
 
-### **Track Parcel**
-- ✅ Search by Tracking Number (Linear Search)
-- ✅ Search by Sender Name (Linear Search)
-- ✅ Search by Sender Phone (Linear Search)
-- ✅ Search by Receiver Name (Linear Search)
-- ✅ Search by Receiver Phone (Linear Search)
-- ✅ Display tracking info
-- ✅ Show status history (reversed chronological)
+    **Track Parcel**
+-   Search by Tracking Number (Linear Search)
+-   Search by Sender Name (Linear Search)
+-   Search by Sender Phone (Linear Search)
+-   Search by Receiver Name (Linear Search)
+-   Search by Receiver Phone (Linear Search)
+-   Display tracking info
+-   Show status history (reversed chronological)
 
-### **Manage Parcels**
+    **Manage Parcels**
 **Table Display**:
 - Tracking Number
 - Sender
@@ -202,18 +202,18 @@ AUTOMATIC ACTIONS:
 - Cost
 
 **Actions**:
-- ✅ View (Shows full history)
-- ✅ Update Status (Dropdown: Registered → Dispatched → In Transit → Out For Delivery → Delivered / Cancelled / Returned)
-- ✅ Delete
+-   View (Shows full history)
+-   Update Status (Dropdown: Registered → Dispatched → In Transit → Out For Delivery → Delivered / Cancelled / Returned)
+-   Delete
 
 **Sorting**:
-- ✅ By Tracking Number
-- ✅ By Destination
-- ✅ By Status
-- ✅ By Cost
-- ✅ Choose Algorithm: Bubble Sort, Selection Sort, Merge Sort
+-   By Tracking Number
+-   By Destination
+-   By Status
+-   By Cost
+-   Choose Algorithm: Bubble Sort, Selection Sort, Merge Sort
 
-### **Cost Calculator**
+    **Cost Calculator**
 ```
 FORMULA:
 Base Fee = 300 KSh
@@ -232,22 +232,22 @@ Calculation:
 300 (base) + 250 (2.5×100) + 300 (express) + 200 (fragile) = 1050 KSh
 ```
 
-### **Reports**
-- ✅ Total Parcels
-- ✅ Registered Parcels
-- ✅ In Transit
-- ✅ Delivered
-- ✅ Cancelled
-- ✅ Total Revenue
-- ✅ Delivery Rate
-- ✅ Most Common Destination
-- ✅ Queue Status (Parcels waiting to process)
-- ✅ Print Report
-- ✅ Export to CSV
+    **Reports**
+-   Total Parcels
+-   Registered Parcels
+-   In Transit
+-   Delivered
+-   Cancelled
+-   Total Revenue
+-   Delivery Rate
+-   Most Common Destination
+-   Queue Status (Parcels waiting to process)
+-   Print Report
+-   Export to CSV
 
 ---
 
-## 💾 Local Storage Schema
+     Local Storage Schema
 
 ```javascript
 // KEY: 'parcels' - Array of parcel objects
@@ -286,14 +286,14 @@ Calculation:
 
 ---
 
-## 🚀 How to Use
+     How to Use
 
-### 1. **Initialize System**
+    1. **Initialize System**
 ```javascript
 initStorage();  // Creates empty storage if not exists
 ```
 
-### 2. **Register a Parcel**
+    2. **Register a Parcel**
 ```javascript
 let result = createParcel({
   senderName: "John",
@@ -306,25 +306,25 @@ let result = createParcel({
 // Returns: { success: true, trackingNumber: "PK001", cost: 1050 }
 ```
 
-### 3. **Track a Parcel**
+    3. **Track a Parcel**
 ```javascript
 let info = trackParcel("PK001", "trackingNumber");
 // Returns: { trackingNumber, sender, receiver, ... statusHistory }
 ```
 
-### 4. **Update Status**
+    4. **Update Status**
 ```javascript
 updateParcelStatus("PK001", "Delivered");
 // Automatically adds to status stack
 ```
 
-### 5. **Sort Parcels**
+    5. **Sort Parcels**
 ```javascript
 let sorted = sortParcels("merge", "trackingNumber");
 // Choose: "bubble", "selection", or "merge"
 ```
 
-### 6. **Get Statistics**
+    6. **Get Statistics**
 ```javascript
 let stats = getStatistics(getAllParcels());
 // Returns: { totalParcels, registered, inTransit, delivered, deliveryRate, totalRevenue }
@@ -332,18 +332,9 @@ let stats = getStatistics(getAllParcels());
 
 ---
 
-## 🎓 Perfect for Presentation
+  
 
-✅ **Simple & Minimalistic** - No frameworks, just vanilla JS
-✅ **Well-Commented** - Every algorithm explains purpose, steps, complexity
-✅ **Educational** - Clearly demonstrates DSA concepts
-✅ **Interactive** - All features work in browser
-✅ **Visual** - Dashboard updates in real-time
-✅ **Modular** - Separate files for structures, algorithms, storage
-
----
-
-## 📈 Time Complexity Summary
+     Time Complexity Summary
 
 | Operation | Time | Space |
 |-----------|------|-------|
@@ -358,7 +349,7 @@ let stats = getStatistics(getAllParcels());
 
 ---
 
-## ✨ Key Highlights
+     Key Highlights
 
 1. **No Backend Server** - Everything runs in browser using Local Storage
 2. **Persistent Data** - Survives page refresh
@@ -369,7 +360,7 @@ let stats = getStatistics(getAllParcels());
 
 ---
 
-## 🔧 Testing Checklist
+     Testing Checklist
 
 - [ ] Register a parcel → Check dashboard updates
 - [ ] Search by different fields → Verify linear search works
@@ -381,7 +372,7 @@ let stats = getStatistics(getAllParcels());
 
 ---
 
-## 📝 Notes
+     Notes
 
 - **Tracking Numbers**: Auto-generated as PK001, PK002, etc.
 - **Statuses**: Registered → Dispatched → In Transit → Out For Delivery → Delivered (or Cancelled/Returned)
