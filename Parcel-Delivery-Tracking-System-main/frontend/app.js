@@ -1,299 +1,189 @@
-/**
- * UPDATED APP.JS
- * Main application logic - handles all UI interactions
- */
-
-const $ = sel => document.querySelector(sel);
-const $$ = sel => document.querySelectorAll(sel);
-
+// ==========================================
+// VIEW SWITCHING ARCHITECTURE & CONFIG
+// ==========================================
 const views = {
-  dashboard: $('#dashboard'),
-  register: $('#register'),
-  track: $('#track'),
-  manage: $('#manage'),
-  cost: $('#cost'),
-  reports: $('#reports')
+  dashboard: 'dashboard-view',
+  registration: 'registration-view',
+  tracking: 'tracking-view',
+  reports: 'reports-view'
 };
 
-// ============================================
-// NAVIGATION
-// ============================================
-function showView(view) {
-  Object.values(views).forEach(v => v.classList.add('hidden'));
-  view.classList.remove('hidden');
+const navLinks = {
+  'nav-dashboard': views.dashboard,
+  'nav-registration': views.registration,
+  'nav-tracking': views.tracking,
+  'nav-reports': views.reports
+};
+
+// Helper utility to select DOM elements cleanly
+const $ = selector => document.querySelector(selector);
+const $$ = selector => document.querySelectorAll(selector);
+
+// Simple View Controller
+function showView(viewId) {
+  Object.values(views).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+  
+  const targetView = document.getElementById(viewId);
+  if (targetView) targetView.classList.remove('hidden');
+
+  // Update navbar active state highlights
+  $$('nav a').forEach(link => {
+    link.classList.remove('bg-indigo-700', 'text-white');
+    link.classList.add('text-indigo-100', 'hover:bg-indigo-500');
+  });
+
+  Object.entries(navLinks).forEach(([linkId, vId]) => {
+    if (vId === viewId) {
+      const activeLink = document.getElementById(linkId);
+      if (activeLink) {
+        activeLink.classList.remove('text-indigo-100', 'hover:bg-indigo-500');
+        activeLink.classList.add('bg-indigo-700', 'text-white');
+      }
+    }
+  });
 }
 
-$('#nav-dashboard').onclick = () => {
-  showView(views.dashboard);
-  updateDashboard();
-};
-$('#nav-register').onclick = () => showView(views.register);
-$('#nav-track').onclick = () => showView(views.track);
-$('#nav-manage').onclick = () => {
-  showView(views.manage);
-  loadParcelsTable();
-};
-$('#nav-cost').onclick = () => showView(views.cost);
-$('#nav-reports').onclick = () => {
-  showView(views.reports);
-  loadReport();
-};
-
-// ============================================
-// DASHBOARD
-// ============================================
+// ==========================================
+// DASHBOARD METRICS GENERATION
+// ==========================================
 function updateDashboard() {
-  let parcels = getAllParcels();
-  let stats = getStatistics(parcels);
+  // Pull existing client-side cache for displaying statistics metrics
+  const parcels = JSON.parse(localStorage.getItem('parcels')) || [];
+  
+  const total = parcels.length;
+  const transit = parcels.filter(p => p.status === 'In Transit').length;
+  const delivered = parcels.filter(p => p.status === 'Delivered').length;
 
-  $('#stat-total').textContent = stats.totalParcels;
-  $('#stat-registered').textContent = stats.registered;
-  $('#stat-transit').textContent = stats.inTransit;
-  $('#stat-delivered').textContent = stats.delivered;
-  $('#stat-rate').textContent = stats.deliveryRate + '%';
-  $('#stat-revenue').textContent = formatCost(stats.totalRevenue);
+  if (document.getElementById('total-parcels')) $('#total-parcels').textContent = total;
+  if (document.getElementById('parcels-transit')) $('#parcels-transit').textContent = transit;
+  if (document.getElementById('parcels-delivered')) $('#parcels-delivered').textContent = delivered;
+
+  // Refresh data tables in dashboard if present
+  renderRecentParcelsTable(parcels);
 }
 
-// ============================================
-// REGISTER PARCEL
-// ============================================
-$('#register-form').onsubmit = e => {
-  e.preventDefault();
+function renderRecentParcelsTable(parcels) {
+  const tbody = $('#recent-parcels-tbody');
+  if (!tbody) return;
 
-  let formData = new FormData(e.target);
-  let data = Object.fromEntries(formData.entries());
-
-  // Validate
-  if (!data.senderName || !data.receiverName || !data.weight || !data.deliveryLocation) {
-    $('#register-result').innerHTML = '<p style="color:red;">❌ Fill all required fields</p>';
-    return;
-  }
-
-  // Create parcel
-  let result = createParcel(data);
-
-  if (result.error) {
-    $('#register-result').innerHTML = `<p style="color:red;">❌ ${result.error}</p>`;
-  } else {
-    $('#register-result').innerHTML = `
-      <div style="background:#d1fae5; padding:12px; border-radius:6px; color:green;">
-        ✅ <strong>Parcel Registered!</strong><br>
-        Tracking: <strong>${result.trackingNumber}</strong><br>
-        Cost: <strong>${formatCost(result.cost)}</strong>
-      </div>
-    `;
-    e.target.reset();
-    updateDashboard();
-  }
-};
-
-// ============================================
-// TRACK PARCEL
-// ============================================
-$('#track-form').onsubmit = e => {
-  e.preventDefault();
-
-  let searchType = $('#track-type').value;
-  let searchValue = $('#track-value').value;
-
-  let result = trackParcel(searchValue, searchType);
-
-  if (result.error) {
-    $('#track-result').innerHTML = `<p style="color:red;">❌ ${result.error}</p>`;
-    return;
-  }
-
-  // Display parcel info
-  let historyHtml = result.statusHistory
-    .map(h => `<li>${h.status} - ${new Date(h.timestamp).toLocaleString()}</li>`)
-    .reverse()
-    .join('');
-
-  $('#track-result').innerHTML = `
-    <div style="background:#f0f9ff; padding:16px; border-radius:6px;">
-      <p><strong>Tracking:</strong> ${result.trackingNumber}</p>
-      <p><strong>Sender:</strong> ${result.sender}</p>
-      <p><strong>Receiver:</strong> ${result.receiver}</p>
-      <p><strong>Destination:</strong> ${result.deliveryLocation}</p>
-      <p><strong>Status:</strong> <span style="color:blue;font-weight:bold;">${result.currentStatus}</span></p>
-      <p><strong>Cost:</strong> ${result.cost}</p>
-      <p><strong>Registered:</strong> ${result.registrationDate}</p>
-      <p><strong>Status History:</strong></p>
-      <ul>${historyHtml}</ul>
-    </div>
-  `;
-};
-
-// ============================================
-// MANAGE PARCELS
-// ============================================
-function loadParcelsTable() {
-  let parcels = getAllParcels();
-  let tbody = $('#parcels-table tbody');
   tbody.innerHTML = '';
-
+  
   if (parcels.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No parcels registered</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No parcels registered yet.</td></tr>`;
     return;
   }
 
-  parcels.forEach(p => {
-    let tr = document.createElement('tr');
+  // Display top 5 most recent records
+  parcels.slice(-5).reverse().forEach(parcel => {
+    const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${p.trackingNumber}</td>
-      <td>${p.senderName}</td>
-      <td>${p.receiverName}</td>
-      <td>${p.deliveryLocation}</td>
-      <td><span class="status-badge">${p.status}</span></td>
-      <td>${formatCost(p.cost)}</td>
-      <td>
-        <button class="action-btn" onclick="viewParcel('${p.trackingNumber}')">View</button>
-        <button class="action-btn" onclick="editStatus('${p.trackingNumber}')">Update</button>
-        <button class="action-btn delete" onclick="if(confirm('Delete?')) deleteParcelAction('${p.trackingNumber}')">Delete</button>
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${parcel.trackingNumber || 'N/A'}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parcel.senderName || 'N/A'}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parcel.receiverName || 'N/A'}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parcel.deliveryLocation || 'N/A'}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm">
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">${parcel.status || 'Registered'}</span>
       </td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-function viewParcel(trackingNumber) {
-  let parcel = findParcel(trackingNumber);
-  if (parcel) {
-    let history = parcel.statusHistory
-      .map(h => `${h.status}`)
-      .reverse()
-      .join(' → ');
-    alert(`Tracking: ${parcel.trackingNumber}\nSender: ${parcel.senderName}\nReceiver: ${parcel.receiverName}\nStatus: ${parcel.status}\nHistory: ${history}`);
-  }
+// ==========================================
+// INTEGRATED REGISTRATION FORM INTERACTION
+// ==========================================
+function initRegistrationForm() {
+  const form = $('#register-form');
+  if (!form) return;
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    // Gather form input values into a data object payload
+    const formData = new FormData(e.target);
+    const parcelData = {
+      senderName: formData.get('senderName'),
+      senderPhone: formData.get('senderPhone'),
+      senderEmail: formData.get('senderEmail'),
+      pickupLocation: formData.get('pickupLocation'),
+      receiverName: formData.get('receiverName'),
+      receiverPhone: formData.get('receiverPhone'),
+      receiverEmail: formData.get('receiverEmail'),
+      deliveryLocation: formData.get('deliveryLocation'),
+      parcelDescription: formData.get('parcelDescription'),
+      weight: parseFloat(formData.get('weight')) || 0,
+      deliveryType: formData.get('deliveryType'),
+      isFragile: formData.get('isFragile') === 'on'
+    };
+
+    try {
+      // Direct connection hook straight to your custom Python Flask Backend Engine
+      const response = await fetch('http://127.0.0.1:5000/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(parcelData)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(`Parcel Successfully Processed by Python Backend!\nTracking Number: ${result.parcel.trackingNumber}`);
+        
+        // Feed backend tracking record back into local browser list for global frontend rendering compatibility
+        const localParcels = JSON.parse(localStorage.getItem('parcels')) || [];
+        localParcels.push(result.parcel);
+        localStorage.setItem('parcels', JSON.stringify(localParcels));
+        
+        // Reset form interface and change view
+        e.target.reset();
+        showView(views.dashboard);
+        updateDashboard();
+      } else {
+        alert(`Backend Rejection Error: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Failed to communicate with Flask backend:', error);
+      alert('Network Error: Could not connect to the Python backend server. Make sure app.py is running on port 5000!');
+    }
+  };
 }
 
-function editStatus(trackingNumber) {
-  let parcel = findParcel(trackingNumber);
-  if (!parcel) return;
-
-  let statusOptions = ['Registered', 'Dispatched', 'In Transit', 'Out For Delivery', 'Delivered', 'Cancelled', 'Returned'];
-  let newStatus = prompt(`Current: ${parcel.status}\n\nNew status:\n${statusOptions.join(', ')}`, parcel.status);
-
-  if (newStatus && statusOptions.includes(newStatus)) {
-    updateParcelStatus(trackingNumber, newStatus);
-    loadParcelsTable();
-    updateDashboard();
-    alert('Status updated!');
-  }
-}
-
-function deleteParcelAction(trackingNumber) {
-  removeParcel(trackingNumber);
-  loadParcelsTable();
-  updateDashboard();
-}
-
-// ============================================
-// SORTING
-// ============================================
-$('#sort-btn').onclick = () => {
-  let algorithm = $('#sort-algo').value;
-  let field = $('#sort-field').value;
-  let sorted = sortParcels(algorithm, field);
-
-  let tbody = $('#parcels-table tbody');
-  tbody.innerHTML = '';
-
-  if (sorted.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7">No parcels</td></tr>';
-    return;
-  }
-
-  sorted.forEach(p => {
-    let tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${p.trackingNumber}</td>
-      <td colspan="2"></td>
-      <td>${p.destination}</td>
-      <td>${p.status}</td>
-      <td>${formatCost(p.cost)}</td>
-      <td></td>
-    `;
-    tbody.appendChild(tr);
+// ==========================================
+// APPLICATION LIFECYCLE INITIALIZATION
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Hook Navigation event links up to View Controller
+  Object.entries(navLinks).forEach(([linkId, viewId]) => {
+    const linkEl = document.getElementById(linkId);
+    if (linkEl) {
+      linkEl.addEventListener('click', (e) => {
+        e.preventDefault();
+        showView(viewId);
+      });
+    }
   });
 
-  alert(`Sorted by ${field} using ${algorithm} sort`);
-};
+  // 2. Initialize Dark Mode Switcher (if UI theme toggler layout element exists)
+  const themeToggleBtn = $('#theme-toggle');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+    // Check saved theme configuration preference layout
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+    }
+  }
 
-// ============================================
-// COST CALCULATOR
-// ============================================
-$('#cost-form').onsubmit = e => {
-  e.preventDefault();
-
-  let weight = parseFloat($('#calc-weight').value) || 0;
-  let type = $('#calc-type').value;
-  let fragile = $('#calc-fragile').checked;
-
-  let cost = calculateDeliveryCost(weight, type, fragile);
-
-  let breakdown = `
-    Base: 300 KSh<br>
-    Weight (${weight}kg × 100): ${weight * 100} KSh<br>
-    ${type === 'express' ? 'Express: 300 KSh<br>' : ''}
-    ${fragile ? 'Fragile: 200 KSh<br>' : ''}
-    <strong>Total: ${formatCost(cost)}</strong>
-  `;
-
-  $('#cost-result').innerHTML = `<div style="background:#fef3c7; padding:12px; border-radius:6px;">${breakdown}</div>`;
-};
-
-// ============================================
-// REPORTS
-// ============================================
-function loadReport() {
-  let parcels = getAllParcels();
-  let stats = getStatistics(parcels);
-  let { counts, mostCommon } = getDestinationCount(parcels);
-  let queue = getQueue();
-
-  let reportHtml = `
-    <div style="background:#fff; padding:16px; border-radius:8px;">
-      <h3>📊 Parcel Statistics</h3>
-      <p>Total Parcels: <strong>${stats.totalParcels}</strong></p>
-      <p>Registered: <strong>${stats.registered}</strong></p>
-      <p>In Transit: <strong>${stats.inTransit}</strong></p>
-      <p>Delivered: <strong>${stats.delivered}</strong></p>
-      <p>Delivery Rate: <strong>${stats.deliveryRate}%</strong></p>
-      <p>Total Revenue: <strong>${formatCost(stats.totalRevenue)}</strong></p>
-      
-      <h3>📍 Most Common Destination</h3>
-      <p>${mostCommon || 'N/A'}</p>
-      
-      <h3>⏳ Processing Queue (FIFO)</h3>
-      <p>Parcels waiting: ${queue.length}</p>
-      <p>Next to process: ${queue[0] || 'None'}</p>
-    </div>
-  `;
-
-  $('#report-content').innerHTML = reportHtml;
-}
-
-$('#print-btn').onclick = () => window.print();
-
-$('#export-csv-btn').onclick = () => {
-  let parcels = getAllParcels();
-  let csv = 'Tracking,Sender,Receiver,Destination,Status,Cost\n';
-  parcels.forEach(p => {
-    csv += `${p.trackingNumber},${p.senderName},${p.receiverName},${p.deliveryLocation},${p.status},${p.cost}\n`;
-  });
-
-  let link = document.createElement('a');
-  link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  link.download = 'parcels_report.csv';
-  link.click();
-};
-
-// ============================================
-// INITIALIZATION
-// ============================================
-window.onload = () => {
-  initStorage();
+  // 3. Kickoff form handlers and dashboards statistics layout metrics
+  initRegistrationForm();
   showView(views.dashboard);
   updateDashboard();
-};
+});
