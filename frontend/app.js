@@ -104,6 +104,7 @@ function initRegistrationForm() {
     // Gather form input values into a unified data payload
     const formData = new FormData(e.target);
     const parcelData = {
+      // 1. JavaScript CamelCase Format Mapping
       senderName: formData.get('senderName'),
       senderPhone: formData.get('senderPhone'),
       senderEmail: formData.get('senderEmail'),
@@ -115,7 +116,20 @@ function initRegistrationForm() {
       parcelDescription: formData.get('parcelDescription'),
       weight: parseFloat(formData.get('weight')) || 0,
       deliveryType: formData.get('deliveryType'),
-      isFragile: formData.get('isFragile') === 'on' || formData.get('isFragile') === 'true'
+      isFragile: formData.get('isFragile') === 'on' || formData.get('isFragile') === 'true',
+
+      // 2. Python Snake_Case Format Mapping (Resolves Backend Naming Mismatch)
+      sender_name: formData.get('senderName'),
+      sender_phone: formData.get('senderPhone'),
+      sender_email: formData.get('senderEmail'),
+      pickup_location: formData.get('pickupLocation'),
+      receiver_name: formData.get('receiverName'),
+      receiver_phone: formData.get('receiverPhone'),
+      receiver_email: formData.get('receiverEmail'),
+      delivery_location: formData.get('deliveryLocation'),
+      parcel_description: formData.get('parcelDescription'),
+      delivery_type: formData.get('deliveryType'),
+      is_fragile: formData.get('isFragile') === 'on' || formData.get('isFragile') === 'true'
     };
 
     try {
