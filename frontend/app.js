@@ -55,6 +55,9 @@ function updateDashboard() {
 
   // Display recently registered parcels (last 5)
   displayRecentParcels(parcels);
+  
+  // Display recent status updates
+  displayStatusUpdates(parcels);
 }
 
 function displayRecentParcels(parcels) {
@@ -93,6 +96,68 @@ function displayRecentParcels(parcels) {
   html += '<p style="margin-top: 1rem; font-size: 12px; color: #64748b;">Showing last 5 registered parcels</p>';
 
   recentContainer.innerHTML = html;
+}
+
+function displayStatusUpdates(parcels) {
+  let updatesContainer = $('#status-updates');
+  
+  if (parcels.length === 0) {
+    updatesContainer.innerHTML = '<p class="no-parcels-message">No status updates yet.</p>';
+    return;
+  }
+
+  // Collect all status updates from all parcels
+  let allUpdates = [];
+  parcels.forEach(p => {
+    if (p.statusHistory && p.statusHistory.length > 0) {
+      p.statusHistory.forEach(h => {
+        allUpdates.push({
+          tracking: p.trackingNumber,
+          status: h.status,
+          timestamp: h.timestamp,
+          sender: p.senderName,
+          receiver: p.receiverName
+        });
+      });
+    }
+  });
+
+  // Sort by timestamp (most recent first) and get last 10
+  allUpdates.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  let recentUpdates = allUpdates.slice(0, 10);
+
+  if (recentUpdates.length === 0) {
+    updatesContainer.innerHTML = '<p class="no-parcels-message">No status updates yet.</p>';
+    return;
+  }
+
+  let html = '<div class="status-updates-list">';
+  
+  recentUpdates.forEach(update => {
+    let date = new Date(update.timestamp);
+    let timeStr = date.toLocaleString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+    
+    html += '<div class="status-update-item">';
+    html += '<div class="status-update-header">';
+    html += `<span class="status-update-tracking">${update.tracking}</span>`;
+    html += `<span class="status-update-time">${timeStr}</span>`;
+    html += '</div>';
+    html += '<div class="status-update-details">';
+    html += `${update.sender} → ${update.receiver}`;
+    html += `<span class="status-update-status">${update.status}</span>`;
+    html += '</div>';
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  html += '<p style="margin-top: 1rem; font-size: 12px; color: #64748b;">Showing last 10 status updates</p>';
+
+  updatesContainer.innerHTML = html;
 }
 
 // ============================================
