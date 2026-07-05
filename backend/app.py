@@ -1,10 +1,15 @@
-from flask import Flask, jsonify, request, send_from_directory
 import os
 import json
 import uuid
 from datetime import datetime
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
 
-# Try to import existing modules; if not present, use internal implementations
+# Initialize Flask with the correct frontend static path directory
+app = Flask(__name__, static_folder='../frontend', static_url_path='/')
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+
+# Try to import existing data modules securely
 try:
     from Parcel_CostCalculator import CostCalculator
 except Exception:
@@ -21,10 +26,9 @@ COST_HISTORY_FILE = os.path.join(DATA_DIR, 'cost_history.json')
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
-app = Flask(__name__, static_folder='../frontend', static_url_path='/')
-
-# Helpers to read/write JSON
-
+# ==========================================
+# FILE READ/WRITE UTILITY HELPERS
+# ==========================================
 def _read_json(path, default):
     if not os.path.exists(path):
         return default
@@ -34,12 +38,11 @@ def _read_json(path, default):
         except Exception:
             return default
 
-
 def _write_json(path, data):
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, ensure_ascii=False, default=str)
 
-# Basic in-repo cost calculator fallback
+# Fallback classes if custom data structural files are absent
 class _DefaultCostCalculator:
     def __init__(self):
         self.history = _read_json(COST_HISTORY_FILE, [])
@@ -65,7 +68,6 @@ class _DefaultCostCalculator:
         _write_json(COST_HISTORY_FILE, self.history)
         return cost
 
-# Default reports fallback
 class _DefaultReports:
     def summary(self, parcels):
         total = len(parcels)
@@ -85,66 +87,60 @@ class _DefaultReports:
             'average_weight_kg': avg_weight
         }
 
-# Choose implementations (prefer imported ones)
 Calc = CostCalculator() if CostCalculator else _DefaultCostCalculator()
 Rpt = Reports() if Reports else _DefaultReports()
 
-# Load parcels on startup
+# Initial state data ingestion
 parcels_store = _read_json(PARCELS_FILE, [])
 
-# Serve frontend
+# ==========================================
+# ROUTE ENDPOINTS DEFINITIONS
+# ==========================================
 @app.route('/')
 def index():
     return send_from_directory(app.static_folder, 'index.html')
+
+# Unified API Registration Interface matching frontend app.js perfectly
+@app.route('/api/register', methods=['POST'])
+def register_parcel():
+    data = request.json or {}
+    
+    # Simple explicit key presence validation match check
+    if not data.get('sender') and not data.get('sender_name'):
+        return jsonify({'success': False, 'error': 'Sender and receiver required'}), 400
+        
+    tracking = data.get('tracking_number') or f"KE-{uuid.uuid4().hex[:4].upper()}"
+    
+    parcel = {
+        'trackingNumber': tracking,
+        'senderName': data.get('sender_name') or data.get('sender'),
+        'receiverName': data.get('receiver_name') or data.get('receiver'),
+        'status': 'Registered',
+        'weight': data.get('weight_kg') or data.get('weight', 0),
+        'cost': 0, 
+        'history': [
+            {
+                'status': 'Registered',
+                'timestamp': datetime.utcnow().isoformat(),
+                'location': data.get('pickup_location') or 'Origin Hub'
+            }
+        ]
+    }
+    
+    parcels_store.append(parcel)
+    _write_json(PARCELS_FILE, parcels_store)
+    
+    print(f"\n✓ Success! Registered: [{tracking}] From: {parcel['senderName']} To: {parcel['receiverName']}")
+    return jsonify({'success': True, 'parcel': parcel}), 201
 
 @app.route('/api/parcels', methods=['GET'])
 def list_parcels():
     return jsonify(parcels_store)
 
-@app.route('/api/parcels', methods=['POST'])
-def create_parcel():
-    data = request.json or {}
-    tracking = data.get('tracking_number') or str(uuid.uuid4()).split('-')[0].upper()
-    parcel = {
-        'tracking_number': tracking,
-        'sender_name': data.get('sender_name', ''),
-        'receiver_name': data.get('receiver_name', ''),
-        'destination': data.get('destination', ''),
-        'origin': data.get('origin', ''),
-        'weight_kg': data.get('weight_kg', 0),
-        'status': data.get('status', 'registered'),
-        'history': [
-            {
-                'status': data.get('status', 'registered'),
-                'timestamp': datetime.utcnow().isoformat(),
-                'location': data.get('origin', '')
-            }
-        ]
-    }
-    parcels_store.append(parcel)
-    _write_json(PARCELS_FILE, parcels_store)
-    return jsonify(parcel), 201
-
 @app.route('/api/parcels/<tracking>', methods=['GET'])
 def get_parcel(tracking):
     for p in parcels_store:
-        if p.get('tracking_number') == tracking:
-            return jsonify(p)
-    return jsonify({'error': 'not found'}), 404
-
-@app.route('/api/parcels/<tracking>/status', methods=['PUT'])
-def update_status(tracking):
-    body = request.json or {}
-    new_status = body.get('status')
-    location = body.get('location', '')
-    if not new_status:
-        return jsonify({'error': 'status required'}), 400
-    for p in parcels_store:
-        if p.get('tracking_number') == tracking:
-            p['status'] = new_status
-            entry = {'status': new_status, 'timestamp': datetime.utcnow().isoformat(), 'location': location}
-            p.setdefault('history', []).append(entry)
-            _write_json(PARCELS_FILE, parcels_store)
+        if p.get('trackingNumber') == tracking or p.get('tracking_number') == tracking:
             return jsonify(p)
     return jsonify({'error': 'not found'}), 404
 
@@ -152,11 +148,11 @@ def update_status(tracking):
 def calculate_cost():
     body = request.json or {}
     try:
-        weight = float(body.get('weight_kg', 0))
-        distance = float(body.get('distance_km', 0))
+        weight = float(body.get('weight_kg', body.get('weight', 0)))
+        distance = float(body.get('distance_km', 10))  # Default fallback distance fallback
     except Exception:
         return jsonify({'error': 'invalid numeric values'}), 400
-    speed = body.get('speed', 'standard')
+    speed = body.get('speed', body.get('delivery_type', 'standard'))
     cost = None
     try:
         cost = Calc.calculate_cost(weight, distance, speed)
