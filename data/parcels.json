@@ -136,5 +136,29 @@
         "location": "Nairobi"
       }
     ]
+  },
+  {
+    "tracking_number": "8513AFC3",
+    "sender_name": "Alice",
+    "receiver_name": "Bob",
+    "destination": "Nairobi",
+    "origin": "Mombasa",
+    "weight_kg": 500.0,
+    "status": "picked_up",
+    "registered_at": "2026-07-05T16:52:34.189266",
+    "history": [
+      {
+        "status": "registered",
+        "timestamp": "2026-07-05T16:52:34.189266",
+        "location": "Mombasa"
+      },
+      {
+        "status": "picked_up",
+        "location": "Nairobi",
+        "timestamp": "2026-07-05T19:52:34.212663",
+        "notes": ""
+      }
+    ],
+    "current_location": "Nairobi"
   }
 ]
