@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Parcel Delivery Tracking System</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <style>
     /* Additional inline styles for compatibility */
     .hidden{display:none}
@@ -251,6 +251,6 @@
   <script src="storage.js"></script>
   <script src="calculations.js"></script>
   <script src="parcelManager.js"></script>
-  <script src="app.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
