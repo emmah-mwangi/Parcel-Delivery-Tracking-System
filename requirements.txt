@@ -1,1 +1,7 @@
-Flask==2.3.3
+Flask
+flask-cors
+gunicorn
+Flask-SQLAlchemy
+Flask-Mail
+python-dotenv
+psycopg2-binary
