@@ -21,7 +21,11 @@ COST_HISTORY_FILE = os.path.join(DATA_DIR, 'cost_history.json')
 
 os.makedirs(DATA_DIR, exist_ok=True)
 
-app = Flask(__name__, static_folder='../frontend', static_url_path='/')
+app = Flask(
+    __name__,
+    template_folder="frontend",
+    static_folder="frontend"
+)
 
 # Helpers to read/write JSON
 
