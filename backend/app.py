@@ -17,11 +17,17 @@ from datetime import datetime
 
 from flask import Flask, jsonify, request, send_from_directory
 
-from data_structures import HashTable, ParcelQueue, StatusStack, PriorityQueue, Graph
-import algorithms
-from cost_calculator import CostCalculator
-from reports import Reports
+from backend.data_structures import (
+    HashTable,
+    ParcelQueue,
+    StatusStack,
+    PriorityQueue,
+    Graph,
+)
 
+from backend import algorithms
+from backend.cost_calculator import CostCalculator
+from backend.reports import Reports
 # ------------------------------------------------------------------
 # Paths & persistence helpers
 # ------------------------------------------------------------------

@@ -18,7 +18,7 @@ History is kept two ways on purpose, to demonstrate both structures:
 """
 
 from datetime import datetime
-from data_structures import StatusStack
+from backend.data_structures import StatusStack
 
 BASE_FEE = 250
 WEIGHT_RATE_PER_KG = 40
