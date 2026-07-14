@@ -1,0 +1,83 @@
+[
+  {
+    "tracking_number": "PK0001",
+    "sender_name": "Test User",
+    "sender_phone": "",
+    "sender_email": "",
+    "pickup_location": "",
+    "receiver_name": "Test Receiver",
+    "receiver_phone": "",
+    "receiver_email": "",
+    "delivery_location": "",
+    "route_path": [
+      "Nairobi",
+      "Mombasa"
+    ],
+    "distance_km": 480,
+    "parcel_description": "",
+    "weight_kg": 1.0,
+    "delivery_type": "standard",
+    "is_fragile": false,
+    "cost": 2690.0,
+    "cost_breakdown": {
+      "base_fee": 250,
+      "weight_charge": 40.0,
+      "distance_charge": 2400.0,
+      "speed_surcharge": 0,
+      "fragile_surcharge": 0,
+      "total": 2690.0
+    },
+    "status": "Registered",
+    "registration_date": "2026-07-14T17:17:27.036932",
+    "status_history": [
+      {
+        "status": "Registered",
+        "timestamp": "2026-07-14T17:17:27.036932",
+        "location": "Nairobi"
+      }
+    ]
+  },
+  {
+    "tracking_number": "PK0002",
+    "sender_name": "Mwangi Emmah",
+    "sender_phone": "0746960753",
+    "sender_email": "mwangiemmah2023@gmail.com",
+    "pickup_location": "Nairobi",
+    "receiver_name": "Mary Kilunda",
+    "receiver_phone": "0740159606",
+    "receiver_email": "marykilunda@gmail.com",
+    "delivery_location": "Kitui",
+    "route_path": [
+      "Nairobi",
+      "Mombasa"
+    ],
+    "distance_km": 480,
+    "parcel_description": "Black bag with 2 laptops",
+    "weight_kg": 9.5,
+    "delivery_type": "standard",
+    "is_fragile": true,
+    "cost": 3180.0,
+    "cost_breakdown": {
+      "base_fee": 250,
+      "weight_charge": 380.0,
+      "distance_charge": 2400.0,
+      "speed_surcharge": 0,
+      "fragile_surcharge": 150,
+      "total": 3180.0
+    },
+    "status": "Registered",
+    "registration_date": "2026-07-14T18:23:14.217860",
+    "status_history": [
+      {
+        "status": "Registered",
+        "timestamp": "2026-07-14T18:23:14.217860",
+        "location": "Warehouse"
+      },
+      {
+        "status": "Registered",
+        "timestamp": "2026-07-14T18:23:33.404989",
+        "location": ""
+      }
+    ]
+  }
+]

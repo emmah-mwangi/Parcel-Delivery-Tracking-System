@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Parcel Delivery Tracking System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Parcel Delivery Tracking System</h1>
+      <span class="tag">Kenya Delivery Network</span>
+    </div>
+    <nav>
+      <button id="nav-dashboard" class="active">Dashboard</button>
+      <button id="nav-register">Register</button>
+      <button id="nav-track">Track</button>
+      <button id="nav-manage">Manage</button>
+      <button id="nav-queue">Dispatch Queue</button>
+      <button id="nav-cost">Cost Calculator</button>
+      <button id="nav-reports">Reports</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ============ DASHBOARD ============ -->
+    <section id="dashboard" class="view">
+      <h2>Dashboard</h2>
+      <p class="view-subtitle">Live counts, pulled from the backend on every visit.</p>
+      <div id="stats">
+        <div class="card"><h3>Total Parcels</h3><p id="stat-total">0</p></div>
+        <div class="card"><h3>Registered</h3><p id="stat-registered">0</p></div>
+        <div class="card"><h3>Dispatched / Transit</h3><p id="stat-transit">0</p></div>
+        <div class="card"><h3>Delivered</h3><p id="stat-delivered">0</p></div>
+        <div class="card"><h3>Delivery Rate</h3><p id="stat-rate">0%</p></div>
+        <div class="card"><h3>Total Revenue</h3><p id="stat-revenue">Ksh 0</p></div>
+      </div>
+      <div class="panel">
+        <h3>Most Recent Status Changes <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;">(top of the Stack — LIFO)</span></h3>
+        <ul id="dashboard-log" class="structure-list"><li class="empty-state">No activity yet.</li></ul>
+      </div>
+    </section>
+
+    <!-- ============ REGISTER ============ -->
+    <section id="register" class="view hidden">
+      <h2>Register Parcel</h2>
+      <p class="view-subtitle">Distance and cost are computed automatically using the default route.</p>
+      <form id="register-form">
+        <div class="form-column">
+          <fieldset>
+            <legend>Sender</legend>
+            <label>Full name<input name="sender_name" required></label>
+            <label>Phone<input name="sender_phone" type="tel"></label>
+            <label>Email<input name="sender_email" type="email"></label>
+            <label>Pickup point<input name="pickup_location" placeholder="e.g. Westlands branch"></label>
+          </fieldset>
+        </div>
+
+        <div class="form-column">
+          <fieldset>
+            <legend>Receiver</legend>
+            <label>Full name<input name="receiver_name" required></label>
+            <label>Phone<input name="receiver_phone" type="tel"></label>
+            <label>Email<input name="receiver_email" type="email"></label>
+            <label>Delivery address<input name="delivery_location" placeholder="e.g. Milimani Estate, House 12"></label>
+          </fieldset>
+        </div>
+
+        <div class="form-column">
+          <fieldset>
+            <legend>Parcel &amp; Route</legend>
+            <label>Description<input name="parcel_description"></label>
+            <label>Weight (kg)<input name="weight_kg" type="number" step="0.01" min="0.1" value="1" required></label>
+            <label>Delivery speed
+              <select name="delivery_type">
+                <option value="standard">Standard</option>
+                <option value="express">Express (+300 KSh)</option>
+                <option value="overnight">Overnight (+600 KSh)</option>
+              </select>
+            </label>
+            <label class="checkbox-row"><input name="is_fragile" type="checkbox"> Fragile item (+150 KSh)</label>
+          </fieldset>
+        </div>
+
+        <div class="actions">
+          <button type="submit">Register parcel</button>
+          <div id="register-result"></div>
+        </div>
+      </form>
+    </section>
+
+    <!-- ============ TRACK ============ -->
+    <section id="track" class="view hidden">
+      <h2>Track Parcel</h2>
+      <p class="view-subtitle">Looks the tracking number up directly in the hash table — O(1) average.</p>
+      <div class="panel">
+        <form id="track-form" class="inline-controls">
+          <label>Search by
+            <select id="track-type">
+              <option value="tracking_number">Tracking number</option>
+              <option value="sender_name">Sender name</option>
+              <option value="receiver_name">Receiver name</option>
+              <option value="receiver_phone">Receiver phone</option>
+            </select>
+          </label>
+          <label>Value<input id="track-value" required></label>
+          <button type="submit">Track</button>
+        </form>
+      </div>
+      <div id="track-result"></div>
+    </section>
+
+    <!-- ============ MANAGE ============ -->
+    <section id="manage" class="view hidden">
+      <h2>Manage Parcels</h2>
+      <p class="view-subtitle">Search and sort run on the backend so you can compare algorithms directly.</p>
+
+      <div class="panel">
+        <h3>Search</h3>
+        <div class="inline-controls">
+          <label>Field
+            <select id="search-field">
+              <option value="tracking_number">Tracking number</option>
+              <option value="sender_name">Sender name</option>
+              <option value="receiver_name">Receiver name</option>
+              <option value="status">Status</option>
+            </select>
+          </label>
+          <label>Algorithm
+            <select id="search-algo">
+              <option value="linear">Linear Search — O(n)</option>
+              <option value="binary">Binary Search — O(log n), sorts first</option>
+            </select>
+          </label>
+          <label>Value<input id="search-value" placeholder="e.g. PK0001"></label>
+          <button id="search-btn" class="btn" type="button">Search</button>
+          <button id="search-clear-btn" class="btn btn-secondary" type="button">Clear</button>
+        </div>
+        <div id="search-result"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Sort</h3>
+        <div class="inline-controls">
+          <label>Field
+            <select id="sort-field">
+              <option value="tracking_number">Tracking number</option>
+              <option value="distance_km">Distance</option>
+              <option value="weight_kg">Weight</option>
+              <option value="cost">Cost</option>
+              <option value="status">Status</option>
+            </select>
+          </label>
+          <label>Algorithm
+            <select id="sort-algo">
+              <option value="bubble">Bubble Sort — O(n²)</option>
+              <option value="selection">Selection Sort — O(n²)</option>
+              <option value="merge">Merge Sort — O(n log n)</option>
+            </select>
+          </label>
+          <label>Order
+            <select id="sort-order">
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </label>
+          <button id="sort-btn" class="btn" type="button">Sort</button>
+        </div>
+      </div>
+
+      <table id="parcels-table">
+        <thead>
+          <tr>
+            <th>Tracking</th><th>Sender</th><th>Receiver</th><th>Route</th>
+            <th>Weight</th><th>Status</th><th>Cost</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- ============ DISPATCH QUEUE ============ -->
+    <section id="queue" class="view hidden">
+      <h2>Dispatch Queue</h2>
+      <p class="view-subtitle">A priority queue (min-heap): overnight and express parcels are dispatched ahead of standard ones, first-in-first-out within the same speed.</p>
+
+      <div class="panel">
+        <h3>Waiting to be dispatched</h3>
+        <ol id="queue-list" class="structure-list"><li class="empty-state">Queue is empty.</li></ol>
+        <button id="process-next-btn" class="btn">Process next</button>
+      </div>
+
+      <div class="panel">
+        <h3>Status change log <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0;">(Stack — most recent first)</span></h3>
+        <ul id="status-stack-list" class="structure-list"><li class="empty-state">No changes logged yet.</li></ul>
+        <button id="undo-btn" class="btn btn-secondary">Undo last status change</button>
+      </div>
+    </section>
+
+    <!-- ============ COST CALCULATOR ============ -->
+    <section id="cost" class="view hidden">
+      <h2>Cost Calculator</h2>
+      <p class="view-subtitle">Distance comes from Dijkstra's shortest path over the town network below.</p>
+      <div class="panel">
+        <form id="cost-form" class="inline-controls">
+          <label>Weight (kg)<input id="calc-weight" type="number" step="0.01" min="0.1" value="1" required></label>
+          <label>Speed
+            <select id="calc-type">
+              <option value="standard">Standard</option>
+              <option value="express">Express</option>
+              <option value="overnight">Overnight</option>
+            </select>
+          </label>
+          <label class="checkbox-row"><input id="calc-fragile" type="checkbox"> Fragile</label>
+          <button type="submit">Calculate</button>
+        </form>
+        <div id="cost-result"></div>
+      </div>
+      <div class="complexity-note">
+        <strong>Formula:</strong> 250 base + (weight × 40/kg) + (distance × 5/km) + speed surcharge (express 300 / overnight 600) + fragile 150.
+        Route distance via <strong>Dijkstra's algorithm</strong> — O((V+E) log V).
+      </div>
+    </section>
+
+    <!-- ============ REPORTS ============ -->
+    <section id="reports" class="view hidden">
+      <h2>Reports</h2>
+      <p class="view-subtitle">Aggregated straight from the live parcel array — nothing cached.</p>
+      <div id="report-content"></div>
+      <div style="margin-top:16px;display:flex;gap:10px;">
+        <button id="print-btn" class="btn btn-secondary">Print report</button>
+        <button id="export-csv-btn" class="btn btn-secondary">Export CSV</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
