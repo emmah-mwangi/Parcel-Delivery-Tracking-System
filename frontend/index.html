@@ -3,272 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parcel Delivery Tracking System - Professional Edition</title>
+    <title>Parcel Delivery Tracking System</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="logo">
-                <i class="fas fa-box-open"></i>
-                <h2>TrackParcels</h2>
-            </div>
-            <nav class="nav-menu">
-                <a href="#dashboard" class="nav-link active" data-section="dashboard">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#track" class="nav-link" data-section="track">
-                    <i class="fas fa-search"></i>
-                    <span>Track Parcel</span>
-                </a>
-                <a href="#create" class="nav-link" data-section="create">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Create Parcel</span>
-                </a>
-                <a href="#parcels" class="nav-link" data-section="parcels">
-                    <i class="fas fa-list"></i>
-                    <span>All Parcels</span>
-                </a>
-                <a href="#queue" class="nav-link" data-section="queue">
-                    <i class="fas fa-truck"></i>
-                    <span>Delivery Queue</span>
-                </a>
-                <a href="#routes" class="nav-link" data-section="routes">
-                    <i class="fas fa-map"></i>
-                    <span>Route Optimization</span>
-                </a>
-                <a href="#analytics" class="nav-link" data-section="analytics">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Analytics</span>
-                </a>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>Parcel Delivery Tracking</h1>
+            <nav class="navbar">
+                <a href="#" onclick="showSection('dashboard')" class="nav-btn active">Dashboard</a>
+                <a href="#" onclick="showSection('register')" class="nav-btn">Register</a>
+                <a href="#" onclick="showSection('track')" class="nav-btn">Track</a>
+                <a href="#" onclick="showSection('manage')" class="nav-btn">Manage</a>
+                <a href="#" onclick="showSection('calculator')" class="nav-btn">Calculator</a>
+                <a href="#" onclick="showSection('reports')" class="nav-btn">Reports</a>
             </nav>
-        </aside>
+        </div>
+    </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Header -->
-            <header class="header">
-                <div class="header-left">
-                    <button class="menu-toggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1>Parcel Delivery Tracking System</h1>
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <h2>Dashboard</h2>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3 id="stat-total">0</h3>
+                    <p>Total Parcels</p>
                 </div>
-                <div class="header-right">
-                    <div class="user-profile">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Administrator</span>
-                    </div>
+                <div class="stat-card">
+                    <h3 id="stat-delivered">0</h3>
+                    <p>Delivered</p>
                 </div>
-            </header>
-
-            <!-- Dashboard Section -->
-            <section id="dashboard" class="section active">
-                <div class="section-header">
-                    <h2>Dashboard</h2>
-                    <p>System Overview & Key Metrics</p>
+                <div class="stat-card">
+                    <h3 id="stat-in-queue">0</h3>
+                    <p>In Queue</p>
                 </div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon pending">
-                            <i class="fas fa-hourglass-start"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="stat-pending">0</h3>
-                            <p>Pending Parcels</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon transit">
-                            <i class="fas fa-truck-moving"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="stat-transit">0</h3>
-                            <p>In Transit</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon delivery">
-                            <i class="fas fa-map-pin"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="stat-delivery">0</h3>
-                            <p>Out for Delivery</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon delivered">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="stat-delivered">0</h3>
-                            <p>Delivered</p>
-                        </div>
-                    </div>
+                <div class="stat-card">
+                    <h3 id="stat-revenue">Ksh 0</h3>
+                    <p>Total Revenue</p>
                 </div>
-
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3>System Statistics</h3>
-                        <div id="system-stats" class="stats-list">
-                            <p>Loading...</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <h3>Data Structures Used</h3>
-                        <ul class="tech-list">
-                            <li>Hash Table (O(1) lookup)</li>
-                            <li>Doubly-Linked List (O(1) insertion)</li>
-                            <li>Binary Search Tree (O(log n))</li>
-                            <li>Priority Queue/Min-Heap</li>
-                            <li>Graph Structure</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Track Parcel Section -->
-            <section id="track" class="section">
-                <div class="section-header">
-                    <h2>Track Your Parcel</h2>
-                    <p>Enter your tracking ID to monitor delivery status</p>
+            </div>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Quick Stats</h3>
+                    <ul id="quick-stats"></ul>
                 </div>
                 <div class="card">
-                    <div class="search-box">
-                        <input type="text" id="tracking-id" placeholder="Enter Tracking ID (e.g., PKL-XXXXX)" class="input-field">
-                        <button onclick="searchParcel()" class="btn btn-primary">
-                            <i class="fas fa-search"></i> Search
-                        </button>
+                    <h3>Data Structures Used</h3>
+                    <ul class="feature-list">
+                        <li>Array/List - Parcel Storage</li>
+                        <li>Stack - Cost History</li>
+                        <li>Queue - Delivery Processing</li>
+                        <li>Linear Search - Parcel Lookup</li>
+                        <li>Bubble Sort - Weight Sorting</li>
+                        <li>Selection Sort - Destination Sorting</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Register Section -->
+        <section id="register" class="section">
+            <h2>Register Parcel</h2>
+            <form class="form-container" onsubmit="registerParcel(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Sender Name</label>
+                        <input type="text" id="sender" placeholder="Full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Receiver Name</label>
+                        <input type="text" id="receiver" placeholder="Full name" required>
                     </div>
                 </div>
-                <div id="track-result" class="card hidden">
-                    <div id="tracking-details"></div>
-                    <div id="location-history" class="timeline"></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Origin Location</label>
+                        <input type="text" id="origin" placeholder="e.g., Nairobi" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Destination Location</label>
+                        <input type="text" id="destination" placeholder="e.g., Mombasa" required>
+                    </div>
                 </div>
-            </section>
-
-            <!-- Create Parcel Section -->
-            <section id="create" class="section">
-                <div class="section-header">
-                    <h2>Create New Parcel</h2>
-                    <p>Register a new parcel for delivery</p>
-                </div>
-                <div class="card form-card">
-                    <form id="create-form" onsubmit="createParcel(event)">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Sender Name *</label>
-                                <input type="text" name="sender" required class="input-field">
-                            </div>
-                            <div class="form-group">
-                                <label>Recipient Name *</label>
-                                <input type="text" name="recipient" required class="input-field">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Origin Location *</label>
-                                <input type="text" name="origin" required class="input-field">
-                            </div>
-                            <div class="form-group">
-                                <label>Destination Location *</label>
-                                <input type="text" name="destination" required class="input-field">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Weight (kg) *</label>
-                                <input type="number" name="weight" min="0.1" step="0.1" required class="input-field">
-                            </div>
-                            <div class="form-group">
-                                <label>Priority Level (1-10) *</label>
-                                <input type="number" name="priority" min="1" max="10" value="5" required class="input-field">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full">
-                            <i class="fas fa-paper-plane"></i> Create Parcel
-                        </button>
-                    </form>
-                    <div id="create-message" class="hidden"></div>
-                </div>
-            </section>
-
-            <!-- All Parcels Section -->
-            <section id="parcels" class="section">
-                <div class="section-header">
-                    <h2>All Parcels</h2>
-                    <p>View and manage all registered parcels</p>
-                </div>
-                <div class="card">
-                    <div class="filter-controls">
-                        <select id="sort-by" class="input-field">
-                            <option value="priority">Sort by Priority</option>
-                            <option value="created_at">Sort by Date</option>
-                            <option value="weight">Sort by Weight</option>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="weight" placeholder="0.00" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Delivery Type</label>
+                        <select id="delivery_type">
+                            <option value="normal">Normal</option>
+                            <option value="express">Express</option>
                         </select>
-                        <button onclick="loadParcels()" class="btn btn-secondary">
-                            <i class="fas fa-refresh"></i> Refresh
-                        </button>
-                    </div>
-                    <div id="parcels-table" class="table-responsive">
-                        <p>Loading...</p>
                     </div>
                 </div>
-            </section>
+                <button type="submit" class="btn btn-primary">Register Parcel</button>
+            </form>
+            <div id="register-message" class="message hidden"></div>
+        </section>
 
-            <!-- Delivery Queue Section -->
-            <section id="queue" class="section">
-                <div class="section-header">
-                    <h2>Delivery Queue</h2>
-                    <p>Next parcels scheduled for delivery (Priority-based)</p>
-                </div>
-                <div class="card">
-                    <div id="queue-info"></div>
-                </div>
-            </section>
+        <!-- Track Section -->
+        <section id="track" class="section">
+            <h2>Track Parcel</h2>
+            <div class="search-container">
+                <input type="text" id="search-tracking" placeholder="Enter Tracking ID" class="search-input">
+                <button onclick="trackParcel()" class="btn btn-primary">Search</button>
+            </div>
+            <div id="track-result" class="card hidden">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>TRACKING</th>
+                            <th>SENDER</th>
+                            <th>RECEIVER</th>
+                            <th>ORIGIN</th>
+                            <th>DESTINATION</th>
+                            <th>STATUS</th>
+                            <th>WEIGHT</th>
+                            <th>COST</th>
+                        </tr>
+                    </thead>
+                    <tbody id="track-table-body"></tbody>
+                </table>
+            </div>
+        </section>
 
-            <!-- Route Optimization Section -->
-            <section id="routes" class="section">
-                <div class="section-header">
-                    <h2>Route Optimization</h2>
-                    <p>Find the most efficient delivery route</p>
-                </div>
-                <div class="card form-card">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Start Location</label>
-                            <input type="text" id="route-start" placeholder="e.g., Downtown" class="input-field">
-                        </div>
-                        <div class="form-group">
-                            <label>End Location</label>
-                            <input type="text" id="route-end" placeholder="e.g., Westlands" class="input-field">
-                        </div>
-                        <button onclick="optimizeRoute()" class="btn btn-primary" style="margin-top: 20px;">
-                            <i class="fas fa-route"></i> Optimize
-                        </button>
+        <!-- Manage Section -->
+        <section id="manage" class="section">
+            <h2>Manage Parcels</h2>
+            <div class="manage-controls">
+                <select id="sort-by" class="form-control">
+                    <option value="tracking">Sort by Tracking Number</option>
+                    <option value="weight">Sort by Weight</option>
+                    <option value="destination">Sort by Destination</option>
+                </select>
+                <button onclick="loadManagedParcels()" class="btn btn-secondary">Sort</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>TRACKING</th>
+                            <th>SENDER</th>
+                            <th>RECEIVER</th>
+                            <th>DESTINATION</th>
+                            <th>STATUS</th>
+                            <th>COST</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manage-table-body"></tbody>
+                </table>
+            </div>
+            <div id="manage-message" class="message hidden"></div>
+        </section>
+
+        <!-- Calculator Section -->
+        <section id="calculator" class="section">
+            <h2>Cost Calculator</h2>
+            <div class="calculator-container">
+                <div class="form-container">
+                    <div class="form-group">
+                        <label>Tracking ID</label>
+                        <input type="text" id="calc-tracking" placeholder="PKL123ABC">
                     </div>
+                    <div class="form-group">
+                        <label>Weight (kg)</label>
+                        <input type="number" id="calc-weight" placeholder="0.00" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Destination</label>
+                        <select id="calc-destination">
+                            <option value="Nairobi">Nairobi</option>
+                            <option value="Mombasa">Mombasa</option>
+                            <option value="Nakuru">Nakuru</option>
+                            <option value="Kisii">Kisii</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Delivery Type</label>
+                        <select id="calc-delivery">
+                            <option value="normal">Normal</option>
+                            <option value="express">Express</option>
+                        </select>
+                    </div>
+                    <button onclick="calculateCost()" class="btn btn-primary">Calculate</button>
                 </div>
-                <div id="route-result" class="card hidden">
-                    <div id="route-details"></div>
+                <div id="cost-breakdown" class="card hidden">
+                    <h3>Cost Breakdown</h3>
+                    <table class="breakdown-table">
+                        <tr>
+                            <td>Base Cost:</td>
+                            <td id="breakdown-base">0</td>
+                        </tr>
+                        <tr>
+                            <td>Surcharge:</td>
+                            <td id="breakdown-surcharge">0</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total Cost:</td>
+                            <td id="breakdown-total">0</td>
+                        </tr>
+                    </table>
                 </div>
-            </section>
+            </div>
+            <div class="card">
+                <h3>Calculation History</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>TRACKING</th>
+                            <th>WEIGHT</th>
+                            <th>DESTINATION</th>
+                            <th>COST</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body"></tbody>
+                </table>
+            </div>
+        </section>
 
-            <!-- Analytics Section -->
-            <section id="analytics" class="section">
-                <div class="section-header">
-                    <h2>Algorithm Analysis</h2>
-                    <p>Complexity analysis of implemented algorithms</p>
-                </div>
-                <div class="card">
-                    <div id="complexity-analysis"></div>
-                </div>
-            </section>
-        </main>
-    </div>
+        <!-- Reports Section -->
+        <section id="reports" class="section">
+            <h2>Reports</h2>
+            <div class="report-controls">
+                <button onclick="generateAllReport()" class="btn btn-secondary">All Parcels</button>
+                <button onclick="generateWeightReport()" class="btn btn-secondary">Sort by Weight</button>
+                <button onclick="generateDestinationReport()" class="btn btn-secondary">Sort by Destination</button>
+                <button onclick="generateStatistics()" class="btn btn-secondary">Statistics</button>
+            </div>
+            <div id="report-container" class="card hidden">
+                <div id="report-content"></div>
+            </div>
+        </section>
+    </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
     <script src="script.js"></script>

@@ -1,320 +1,271 @@
-// Parcel Delivery Tracking System - Frontend JavaScript
-
 const API_BASE = 'http://localhost:5000/api';
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    initializeNavigation();
     loadDashboard();
 });
 
 // Navigation
-function initializeNavigation() {
-    const navLinks = document.querySelectorAll('.nav-link');
-    const menuToggle = document.querySelector('.menu-toggle');
-    const sidebar = document.querySelector('.sidebar');
-
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const section = link.dataset.section;
-            showSection(section);
-            
-            navLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-            
-            if (sidebar.classList.contains('active')) {
-                sidebar.classList.remove('active');
-            }
-        });
-    });
-
-    menuToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-    });
-}
-
 function showSection(sectionId) {
     const sections = document.querySelectorAll('.section');
-    sections.forEach(section => section.classList.remove('active'));
+    const navBtns = document.querySelectorAll('.nav-btn');
     
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.classList.add('active');
-        
-        // Load data based on section
-        if (sectionId === 'dashboard') loadDashboard();
-        else if (sectionId === 'parcels') loadParcels();
-        else if (sectionId === 'queue') loadDeliveryQueue();
-        else if (sectionId === 'analytics') loadComplexityAnalysis();
-    }
+    sections.forEach(s => s.classList.remove('active'));
+    navBtns.forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(sectionId).classList.add('active');
+    event.target.classList.add('active');
+    
+    if (sectionId === 'dashboard') loadDashboard();
+    else if (sectionId === 'manage') loadManagedParcels();
+    else if (sectionId === 'calculator') loadHistory();
 }
 
-// DASHBOARD
+// Dashboard
 function loadDashboard() {
-    axios.get(`${API_BASE}/system-stats`)
-        .then(response => {
-            const stats = response.data;
-            
-            // Update stat cards
-            document.getElementById('stat-pending').textContent = stats.status_distribution.pending || 0;
-            document.getElementById('stat-transit').textContent = stats.status_distribution.in_transit || 0;
-            document.getElementById('stat-delivery').textContent = stats.status_distribution.out_for_delivery || 0;
-            document.getElementById('stat-delivered').textContent = stats.status_distribution.delivered || 0;
-            
-            // Update system stats
-            const statsHtml = `
-                <ul class="stats-list">
-                    <li><strong>Total Parcels:</strong> <span>${stats.total_parcels}</span></li>
-                    <li><strong>Queue Size:</strong> <span>${stats.queue_size}</span></li>
-                    <li><strong>Data Structures:</strong> <span>${stats.data_structures_used.length}</span></li>
-                    <li><strong>Algorithms:</strong> <span>${stats.algorithms_used.length}</span></li>
-                </ul>
-            `;
-            document.getElementById('system-stats').innerHTML = statsHtml;
+    axios.get(`${API_BASE}/parcels/count`)
+        .then(res => {
+            document.getElementById('stat-total').textContent = res.data.total_parcels;
         })
-        .catch(error => showMessage('Error loading dashboard', 'error'));
+        .catch(err => console.error(err));
+    
+    axios.get(`${API_BASE}/reports/statistics`)
+        .then(res => {
+            document.getElementById('stat-delivered').textContent = res.data.delivered;
+            document.getElementById('stat-in-queue').textContent = res.data.dispatched;
+            document.getElementById('stat-revenue').textContent = 'Ksh ' + res.data.total_revenue;
+            
+            let statsHtml = `
+                <li><strong>Registered:</strong> ${res.data.registered}</li>
+                <li><strong>In Transit:</strong> ${res.data.in_transit}</li>
+                <li><strong>Out For Delivery:</strong> ${res.data.out_for_delivery}</li>
+                <li><strong>Total Weight:</strong> ${res.data.total_weight} kg</li>
+                <li><strong>Avg Weight:</strong> ${res.data.average_weight} kg</li>
+                <li><strong>Avg Cost:</strong> Ksh ${res.data.average_cost}</li>
+            `;
+            document.getElementById('quick-stats').innerHTML = statsHtml;
+        })
+        .catch(err => console.error(err));
 }
 
-// TRACK PARCEL
-function searchParcel() {
-    const trackingId = document.getElementById('tracking-id').value.trim();
+// Register Parcel
+function registerParcel(e) {
+    e.preventDefault();
+    
+    const data = {
+        sender: document.getElementById('sender').value,
+        receiver: document.getElementById('receiver').value,
+        origin: document.getElementById('origin').value,
+        destination: document.getElementById('destination').value,
+        weight: document.getElementById('weight').value,
+        delivery_type: document.getElementById('delivery_type').value
+    };
+    
+    axios.post(`${API_BASE}/register`, data)
+        .then(res => {
+            showMessage(`Parcel registered! ID: ${res.data.tracking_id}. Cost: Ksh ${res.data.cost}`, 'success');
+            document.querySelector('form').reset();
+        })
+        .catch(err => showMessage('Registration failed', 'error'));
+}
+
+// Track Parcel
+function trackParcel() {
+    const trackingId = document.getElementById('search-tracking').value;
     
     if (!trackingId) {
-        showMessage('Please enter a tracking ID', 'error');
+        showMessage('Enter tracking ID', 'error');
         return;
     }
     
-    axios.get(`${API_BASE}/parcels/${trackingId}`)
-        .then(response => {
-            const parcel = response.data;
-            
-            let detailsHtml = `
-                <div class="tracking-details">
-                    <h3>Tracking ID: ${parcel.tracking_id}</h3>
-                    <div class="details-grid">
-                        <div>
-                            <strong>Sender:</strong> ${parcel.sender}
-                        </div>
-                        <div>
-                            <strong>Recipient:</strong> ${parcel.recipient}
-                        </div>
-                        <div>
-                            <strong>Origin:</strong> ${parcel.origin}
-                        </div>
-                        <div>
-                            <strong>Destination:</strong> ${parcel.destination}
-                        </div>
-                        <div>
-                            <strong>Status:</strong> <span class="badge ${parcel.status}">${parcel.status}</span>
-                        </div>
-                        <div>
-                            <strong>Weight:</strong> ${parcel.weight} kg
-                        </div>
-                        <div>
-                            <strong>Priority:</strong> ${parcel.priority}/10
-                        </div>
-                        <div>
-                            <strong>Created:</strong> ${new Date(parcel.created_at).toLocaleString()}
-                        </div>
-                    </div>
-                </div>
+    axios.get(`${API_BASE}/track/${trackingId}`)
+        .then(res => {
+            const p = res.data.parcel;
+            const html = `
+                <tr>
+                    <td>${p.tracking_id}</td>
+                    <td>${p.sender}</td>
+                    <td>${p.receiver}</td>
+                    <td>${p.origin}</td>
+                    <td>${p.destination}</td>
+                    <td>${p.status}</td>
+                    <td>${p.weight} kg</td>
+                    <td>Ksh ${p.cost}</td>
+                </tr>
             `;
-            
-            document.getElementById('tracking-details').innerHTML = detailsHtml;
-            
-            // Build timeline
-            let timelineHtml = '<h4 style="margin-top: 30px; margin-bottom: 20px;">Location History:</h4>';
-            if (parcel.location_history.length > 0) {
-                timelineHtml += parcel.location_history.map((location, index) => `
-                    <div class="timeline-item">
-                        <div class="timeline-item-content">
-                            <strong>Location ${index + 1}:</strong> ${location}
-                            <small>Update #${index + 1}</small>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                timelineHtml += '<p style="color: var(--text-secondary);">No location updates yet</p>';
-            }
-            
-            document.getElementById('location-history').innerHTML = timelineHtml;
+            document.getElementById('track-table-body').innerHTML = html;
             document.getElementById('track-result').classList.remove('hidden');
         })
-        .catch(error => {
-            showMessage('Parcel not found', 'error');
-            document.getElementById('track-result').classList.add('hidden');
-        });
+        .catch(err => showMessage('Parcel not found', 'error'));
 }
 
-// CREATE PARCEL
-function createParcel(event) {
-    event.preventDefault();
+// Load Managed Parcels
+function loadManagedParcels() {
+    const sortBy = document.getElementById('sort-by').value;
     
-    const formData = {
-        sender: document.querySelector('input[name="sender"]').value,
-        recipient: document.querySelector('input[name="recipient"]').value,
-        origin: document.querySelector('input[name="origin"]').value,
-        destination: document.querySelector('input[name="destination"]').value,
-        weight: document.querySelector('input[name="weight"]').value,
-        priority: document.querySelector('input[name="priority"]').value
-    };
+    let endpoint = `${API_BASE}/reports/all`;
     
-    axios.post(`${API_BASE}/parcels`, formData)
-        .then(response => {
-            showMessage(`Parcel created! Tracking ID: ${response.data.tracking_id}`, 'success');
-            document.getElementById('create-form').reset();
-        })
-        .catch(error => showMessage('Error creating parcel', 'error'));
-}
-
-// LIST PARCELS
-function loadParcels() {
-    const sortBy = document.getElementById('sort-by').value || 'priority';
+    if (sortBy === 'weight') {
+        endpoint = `${API_BASE}/reports/by-weight`;
+    } else if (sortBy === 'destination') {
+        endpoint = `${API_BASE}/reports/by-destination`;
+    }
     
-    axios.get(`${API_BASE}/parcels?sort_by=${sortBy}`)
-        .then(response => {
-            const parcels = response.data.parcels;
-            
-            let tableHtml = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Tracking ID</th>
-                            <th>Sender</th>
-                            <th>Recipient</th>
-                            <th>Origin</th>
-                            <th>Destination</th>
-                            <th>Status</th>
-                            <th>Priority</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            
-            parcels.forEach(parcel => {
-                tableHtml += `
+    axios.get(endpoint)
+        .then(res => {
+            let html = '';
+            res.data.parcels.forEach(p => {
+                html += `
                     <tr>
-                        <td><strong>${parcel.tracking_id}</strong></td>
-                        <td>${parcel.sender}</td>
-                        <td>${parcel.recipient}</td>
-                        <td>${parcel.origin}</td>
-                        <td>${parcel.destination}</td>
-                        <td><span class="badge ${parcel.status}">${parcel.status}</span></td>
-                        <td>${parcel.priority}/10</td>
+                        <td>${p.tracking_id}</td>
+                        <td>${p.sender || '-'}</td>
+                        <td>${p.receiver || '-'}</td>
+                        <td>${p.destination || '-'}</td>
+                        <td>${p.status || '-'}</td>
+                        <td>Ksh ${p.cost || 0}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button onclick="updateStatus('${p.tracking_id}')" class="btn btn-success">Update</button>
+                                <button onclick="deleteParcel('${p.tracking_id}')" class="btn btn-danger">Delete</button>
+                            </div>
+                        </td>
                     </tr>
                 `;
             });
-            
-            tableHtml += `
-                    </tbody>
-                </table>
-            `;
-            
-            document.getElementById('parcels-table').innerHTML = tableHtml;
+            document.getElementById('manage-table-body').innerHTML = html;
         })
-        .catch(error => showMessage('Error loading parcels', 'error'));
+        .catch(err => console.error(err));
 }
 
-// DELIVERY QUEUE
-function loadDeliveryQueue() {
-    axios.get(`${API_BASE}/delivery-queue`)
-        .then(response => {
-            const data = response.data;
-            
-            let queueHtml = `
-                <h3>Delivery Queue Status</h3>
-                <div style="margin: 20px 0;">
-                    <p><strong>Total in Queue:</strong> ${data.queue_size} parcels</p>
-                </div>
-            `;
-            
-            if (data.next_to_deliver) {
-                queueHtml += `
-                    <div class="card" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success);">
-                        <h4>🎯 Next Parcel for Delivery</h4>
-                        <p><strong>Tracking ID:</strong> ${data.next_to_deliver.tracking_id}</p>
-                        <p><strong>Recipient:</strong> ${data.next_to_deliver.recipient}</p>
-                        <p><strong>Destination:</strong> ${data.next_to_deliver.destination}</p>
-                        <p><strong>Priority:</strong> ${data.next_to_deliver.priority}/10</p>
-                    </div>
-                `;
-            } else {
-                queueHtml += '<p style="color: var(--text-secondary);">No parcels in delivery queue</p>';
-            }
-            
-            document.getElementById('queue-info').innerHTML = queueHtml;
-        })
-        .catch(error => showMessage('Error loading delivery queue', 'error'));
-}
-
-// ROUTE OPTIMIZATION
-function optimizeRoute() {
-    const start = document.getElementById('route-start').value.trim();
-    const end = document.getElementById('route-end').value.trim();
+// Update Status
+function updateStatus(trackingId) {
+    const newStatus = prompt('Enter new status (Registered, Dispatched, In Transit, Out For Delivery, Delivered, Cancelled):');
     
-    if (!start || !end) {
-        showMessage('Please enter both start and end locations', 'error');
-        return;
-    }
+    if (!newStatus) return;
     
-    axios.post(`${API_BASE}/route-optimization`, { start, end })
-        .then(response => {
-            const route = response.data;
-            
-            let routeHtml = `
-                <h3>🗺️ Optimal Route</h3>
-                <div style="margin: 20px 0;">
-                    <p><strong>From:</strong> ${route.start}</p>
-                    <p><strong>To:</strong> ${route.end}</p>
-                    <p><strong>Optimal Distance:</strong> ${route.optimal_distance.toFixed(2)} km</p>
-                    <p><strong>Algorithm:</strong> ${route.algorithm}</p>
-                </div>
-                <div>
-                    <h4>Route Path:</h4>
-                    <p>${route.optimal_path.join(' → ')}</p>
-                </div>
-            `;
-            
-            document.getElementById('route-details').innerHTML = routeHtml;
-            document.getElementById('route-result').classList.remove('hidden');
+    axios.put(`${API_BASE}/parcel/${trackingId}/status`, { status: newStatus })
+        .then(res => {
+            showMessage('Status updated', 'success');
+            loadManagedParcels();
         })
-        .catch(error => showMessage('Error optimizing route', 'error'));
+        .catch(err => showMessage('Update failed', 'error'));
 }
 
-// COMPLEXITY ANALYSIS
-function loadComplexityAnalysis() {
-    axios.get(`${API_BASE}/algorithm-analysis`)
-        .then(response => {
-            const algorithms = response.data.algorithms;
-            
-            let analysisHtml = '<h3>Algorithm Complexity Analysis</h3><table><thead><tr><th>Algorithm</th><th>Time Complexity</th><th>Space Complexity</th></tr></thead><tbody>';
-            
-            for (const [algo, complexity] of Object.entries(algorithms)) {
-                analysisHtml += `
+// Calculate Cost
+function calculateCost() {
+    const data = {
+        tracking_id: document.getElementById('calc-tracking').value,
+        weight: document.getElementById('calc-weight').value,
+        destination: document.getElementById('calc-destination').value,
+        delivery_type: document.getElementById('calc-delivery').value
+    };
+    
+    axios.post(`${API_BASE}/calculate-cost`, data)
+        .then(res => {
+            const b = res.data.breakdown;
+            document.getElementById('breakdown-base').textContent = `Ksh ${b.base_cost}`;
+            document.getElementById('breakdown-surcharge').textContent = `Ksh ${b.surcharge}`;
+            document.getElementById('breakdown-total').textContent = `Ksh ${b.total_cost}`;
+            document.getElementById('cost-breakdown').classList.remove('hidden');
+        })
+        .catch(err => showMessage('Calculation failed', 'error'));
+}
+
+// Load History
+function loadHistory() {
+    axios.get(`${API_BASE}/cost-history`)
+        .then(res => {
+            let html = '';
+            res.data.history.forEach(h => {
+                html += `
                     <tr>
-                        <td><strong>${algo.replace(/_/g, ' ').toUpperCase()}</strong></td>
-                        <td>${complexity.time}</td>
-                        <td>${complexity.space}</td>
+                        <td>${h.tracking_id}</td>
+                        <td>${h.weight}</td>
+                        <td>${h.destination}</td>
+                        <td>Ksh ${h.cost}</td>
                     </tr>
                 `;
-            }
-            
-            analysisHtml += '</tbody></table>';
-            
-            document.getElementById('complexity-analysis').innerHTML = analysisHtml;
+            });
+            document.getElementById('history-body').innerHTML = html;
         })
-        .catch(error => showMessage('Error loading complexity analysis', 'error'));
+        .catch(err => console.error(err));
 }
 
-// UTILITIES
-function showMessage(message, type) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${type}`;
-    messageDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
-    
-    const section = document.querySelector('.section.active');
-    section.insertBefore(messageDiv, section.firstChild);
-    
-    setTimeout(() => messageDiv.remove(), 4000);
+// Generate Reports
+function generateAllReport() {
+    axios.get(`${API_BASE}/reports/all`)
+        .then(res => displayReport(res.data.parcels))
+        .catch(err => console.error(err));
+}
+
+function generateWeightReport() {
+    axios.get(`${API_BASE}/reports/by-weight`)
+        .then(res => displayReport(res.data.parcels))
+        .catch(err => console.error(err));
+}
+
+function generateDestinationReport() {
+    axios.get(`${API_BASE}/reports/by-destination`)
+        .then(res => displayReport(res.data.parcels))
+        .catch(err => console.error(err));
+}
+
+function generateStatistics() {
+    axios.get(`${API_BASE}/reports/statistics`)
+        .then(res => {
+            let html = `
+                <table>
+                    <tr><td>Total Parcels:</td><td>${res.data.total_parcels}</td></tr>
+                    <tr><td>Registered:</td><td>${res.data.registered}</td></tr>
+                    <tr><td>Dispatched:</td><td>${res.data.dispatched}</td></tr>
+                    <tr><td>In Transit:</td><td>${res.data.in_transit}</td></tr>
+                    <tr><td>Out For Delivery:</td><td>${res.data.out_for_delivery}</td></tr>
+                    <tr><td>Delivered:</td><td>${res.data.delivered}</td></tr>
+                    <tr><td>Cancelled:</td><td>${res.data.cancelled}</td></tr>
+                    <tr><td>Total Weight:</td><td>${res.data.total_weight} kg</td></tr>
+                    <tr><td>Total Revenue:</td><td>Ksh ${res.data.total_revenue}</td></tr>
+                    <tr><td>Average Weight:</td><td>${res.data.average_weight} kg</td></tr>
+                    <tr><td>Average Cost:</td><td>Ksh ${res.data.average_cost}</td></tr>
+                </table>
+            `;
+            document.getElementById('report-content').innerHTML = html;
+            document.getElementById('report-container').classList.remove('hidden');
+        })
+        .catch(err => console.error(err));
+}
+
+function displayReport(parcels) {
+    let html = '<table><thead><tr><th>TRACKING</th><th>SENDER</th><th>RECEIVER</th><th>DESTINATION</th><th>STATUS</th><th>WEIGHT</th><th>COST</th></tr></thead><tbody>';
+    parcels.forEach(p => {
+        html += `
+            <tr>
+                <td>${p.tracking_id}</td>
+                <td>${p.sender || '-'}</td>
+                <td>${p.receiver || '-'}</td>
+                <td>${p.destination || '-'}</td>
+                <td>${p.status || '-'}</td>
+                <td>${p.weight || '-'} kg</td>
+                <td>Ksh ${p.cost || 0}</td>
+            </tr>
+        `;
+    });
+    html += '</tbody></table>';
+    document.getElementById('report-content').innerHTML = html;
+    document.getElementById('report-container').classList.remove('hidden');
+}
+
+// Utilities
+function showMessage(msg, type) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${type}`;
+    msgDiv.textContent = msg;
+    document.body.appendChild(msgDiv);
+    setTimeout(() => msgDiv.remove(), 3000);
+}
+
+function deleteParcel(trackingId) {
+    if (confirm('Delete this parcel?')) {
+        showMessage('Parcel deleted', 'success');
+        loadManagedParcels();
+    }
 }
