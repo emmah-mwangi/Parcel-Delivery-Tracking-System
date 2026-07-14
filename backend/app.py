@@ -1,176 +1,280 @@
-from flask import Flask, jsonify, request, send_from_directory
-import os
-import json
-import uuid
+"""Flask backend for Parcel Delivery Tracking System"""
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from datetime import datetime
+import uuid
+from data_structures import (
+    Parcel, ParcelStatus, ParcelLinkedList, HashTable,
+    LocationBST, ParcelPriorityQueue, Graph
+)
+from algorithms import SortingAlgorithms, SearchingAlgorithms, PathfindingAlgorithms
 
-# Try to import existing modules; if not present, use internal implementations
-try:
-    from Parcel_CostCalculator import CostCalculator
-except Exception:
-    CostCalculator = None
+app = Flask(__name__)
+CORS(app)
 
-try:
-    from Parcel_Reports import Reports
-except Exception:
-    Reports = None
+# Initialize data structures
+parcel_hash_table = HashTable()
+parcel_linked_list = ParcelLinkedList()
+location_bst = LocationBST()
+delivery_queue = ParcelPriorityQueue()
+location_graph = Graph()
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
-PARCELS_FILE = os.path.join(DATA_DIR, 'parcels.json')
-COST_HISTORY_FILE = os.path.join(DATA_DIR, 'cost_history.json')
-
-os.makedirs(DATA_DIR, exist_ok=True)
-
-app = Flask(__name__, static_folder='../frontend', static_url_path='/')
-
-# Helpers to read/write JSON
-
-def _read_json(path, default):
-    if not os.path.exists(path):
-        return default
-    with open(path, 'r', encoding='utf-8') as f:
-        try:
-            return json.load(f)
-        except Exception:
-            return default
-
-
-def _write_json(path, data):
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False, default=str)
-
-# Basic in-repo cost calculator fallback
-class _DefaultCostCalculator:
-    def __init__(self):
-        self.history = _read_json(COST_HISTORY_FILE, [])
-
-    def calculate_cost(self, weight_kg, distance_km, speed='standard'):
-        base = 50
-        weight_factor = max(1, weight_kg / 5)
-        distance_factor = 1 + (distance_km / 100)
-        speed_multiplier = 1.0
-        if speed == 'express':
-            speed_multiplier = 1.5
-        elif speed == 'overnight':
-            speed_multiplier = 2.0
-        cost = round(base * weight_factor * distance_factor * speed_multiplier, 2)
-        entry = {
-            'timestamp': datetime.utcnow().isoformat(),
-            'weight_kg': weight_kg,
-            'distance_km': distance_km,
-            'speed': speed,
-            'cost': cost
-        }
-        self.history.append(entry)
-        _write_json(COST_HISTORY_FILE, self.history)
-        return cost
-
-# Default reports fallback
-class _DefaultReports:
-    def summary(self, parcels):
-        total = len(parcels)
-        statuses = {}
-        weights = []
-        for p in parcels:
-            st = p.get('status', 'unknown')
-            statuses[st] = statuses.get(st, 0) + 1
-            try:
-                weights.append(float(p.get('weight_kg', 0)))
-            except Exception:
-                pass
-        avg_weight = round(sum(weights) / len(weights), 2) if weights else 0
-        return {
-            'total_parcels': total,
-            'by_status': statuses,
-            'average_weight_kg': avg_weight
-        }
-
-# Choose implementations (prefer imported ones)
-Calc = CostCalculator() if CostCalculator else _DefaultCostCalculator()
-Rpt = Reports() if Reports else _DefaultReports()
-
-# Load parcels on startup
-parcels_store = _read_json(PARCELS_FILE, [])
-
-# Serve frontend
-@app.route('/')
-def index():
-    return send_from_directory(app.static_folder, 'index.html')
-
-@app.route('/api/parcels', methods=['GET'])
-def list_parcels():
-    return jsonify(parcels_store)
+# Sample locations and distances for route optimization
+LOCATIONS = {
+    'Downtown': (1.2862, 36.8172),
+    'Westlands': (1.2688, 36.8160),
+    'Kilimani': (1.2921, 36.8025),
+    'Parklands': (1.2500, 36.8300),
+    'Upper Hill': (1.3000, 36.8000),
+}
 
 @app.route('/api/parcels', methods=['POST'])
 def create_parcel():
-    data = request.json or {}
-    tracking = data.get('tracking_number') or str(uuid.uuid4()).split('-')[0].upper()
-    parcel = {
-        'tracking_number': tracking,
-        'sender_name': data.get('sender_name', ''),
-        'receiver_name': data.get('receiver_name', ''),
-        'destination': data.get('destination', ''),
-        'origin': data.get('origin', ''),
-        'weight_kg': data.get('weight_kg', 0),
-        'status': data.get('status', 'registered'),
-        'history': [
+    """Create new parcel - demonstrates CRUD and data structure insertion"""
+    data = request.json
+    
+    # Generate unique tracking ID
+    tracking_id = f"PKL-{uuid.uuid4().hex[:8].upper()}"
+    
+    # Create parcel object
+    parcel = Parcel(
+        tracking_id=tracking_id,
+        sender=data.get('sender'),
+        recipient=data.get('recipient'),
+        origin=data.get('origin'),
+        destination=data.get('destination'),
+        weight=float(data.get('weight', 0)),
+        priority=int(data.get('priority', 5))
+    )
+    
+    # Insert into all data structures
+    parcel_hash_table.insert(tracking_id, parcel)
+    parcel_linked_list.append(parcel)
+    location_bst.insert(parcel.origin, parcel)
+    delivery_queue.enqueue(parcel)
+    
+    return jsonify({
+        'success': True,
+        'tracking_id': tracking_id,
+        'message': 'Parcel created successfully'
+    }), 201
+
+@app.route('/api/parcels/<tracking_id>', methods=['GET'])
+def get_parcel(tracking_id):
+    """Retrieve parcel by ID - O(1) hash table lookup"""
+    parcel = parcel_hash_table.search(tracking_id)
+    
+    if not parcel:
+        return jsonify({'error': 'Parcel not found'}), 404
+    
+    return jsonify({
+        'tracking_id': parcel.tracking_id,
+        'sender': parcel.sender,
+        'recipient': parcel.recipient,
+        'origin': parcel.origin,
+        'destination': parcel.destination,
+        'status': parcel.status.value,
+        'weight': parcel.weight,
+        'priority': parcel.priority,
+        'created_at': parcel.created_at.isoformat(),
+        'location_history': parcel.location_history
+    }), 200
+
+@app.route('/api/parcels', methods=['GET'])
+def list_parcels():
+    """List all parcels with sorting options"""
+    sort_by = request.args.get('sort_by', 'priority')
+    order = request.args.get('order', 'desc')
+    
+    # Get all parcels
+    all_parcels = parcel_hash_table.get_all()
+    
+    # Sort using merge sort algorithm - O(n log n)
+    sorted_parcels = SortingAlgorithms.merge_sort(all_parcels, sort_by)
+    
+    if order == 'asc':
+        sorted_parcels.reverse()
+    
+    return jsonify({
+        'total': len(sorted_parcels),
+        'parcels': [
             {
-                'status': data.get('status', 'registered'),
-                'timestamp': datetime.utcnow().isoformat(),
-                'location': data.get('origin', '')
+                'tracking_id': p.tracking_id,
+                'sender': p.sender,
+                'recipient': p.recipient,
+                'status': p.status.value,
+                'priority': p.priority,
+                'origin': p.origin,
+                'destination': p.destination
             }
+            for p in sorted_parcels
         ]
-    }
-    parcels_store.append(parcel)
-    _write_json(PARCELS_FILE, parcels_store)
-    return jsonify(parcel), 201
+    }), 200
 
-@app.route('/api/parcels/<tracking>', methods=['GET'])
-def get_parcel(tracking):
-    for p in parcels_store:
-        if p.get('tracking_number') == tracking:
-            return jsonify(p)
-    return jsonify({'error': 'not found'}), 404
+@app.route('/api/parcels/<tracking_id>/update-status', methods=['PUT'])
+def update_parcel_status(tracking_id):
+    """Update parcel status and location"""
+    parcel = parcel_hash_table.search(tracking_id)
+    
+    if not parcel:
+        return jsonify({'error': 'Parcel not found'}), 404
+    
+    data = request.json
+    new_status = ParcelStatus(data.get('status'))
+    current_location = data.get('location')
+    
+    # Update parcel
+    parcel.status = new_status
+    parcel.updated_at = datetime.now()
+    
+    if current_location:
+        parcel.location_history.append(current_location)
+    
+    return jsonify({
+        'success': True,
+        'tracking_id': tracking_id,
+        'status': new_status.value,
+        'updated_at': parcel.updated_at.isoformat()
+    }), 200
 
-@app.route('/api/parcels/<tracking>/status', methods=['PUT'])
-def update_status(tracking):
-    body = request.json or {}
-    new_status = body.get('status')
-    location = body.get('location', '')
-    if not new_status:
-        return jsonify({'error': 'status required'}), 400
-    for p in parcels_store:
-        if p.get('tracking_number') == tracking:
-            p['status'] = new_status
-            entry = {'status': new_status, 'timestamp': datetime.utcnow().isoformat(), 'location': location}
-            p.setdefault('history', []).append(entry)
-            _write_json(PARCELS_FILE, parcels_store)
-            return jsonify(p)
-    return jsonify({'error': 'not found'}), 404
+@app.route('/api/parcels/search/by-location', methods=['GET'])
+def search_by_location():
+    """Search parcels by location - uses BST - O(log n)"""
+    location = request.args.get('location')
+    
+    if not location:
+        return jsonify({'error': 'Location parameter required'}), 400
+    
+    parcels = location_bst.search(location)
+    
+    return jsonify({
+        'location': location,
+        'count': len(parcels),
+        'parcels': [
+            {
+                'tracking_id': p.tracking_id,
+                'sender': p.sender,
+                'recipient': p.recipient,
+                'status': p.status.value
+            }
+            for p in parcels
+        ]
+    }), 200
 
-@app.route('/api/calculate_cost', methods=['POST'])
-def calculate_cost():
-    body = request.json or {}
-    try:
-        weight = float(body.get('weight_kg', 0))
-        distance = float(body.get('distance_km', 0))
-    except Exception:
-        return jsonify({'error': 'invalid numeric values'}), 400
-    speed = body.get('speed', 'standard')
-    cost = None
-    try:
-        cost = Calc.calculate_cost(weight, distance, speed)
-    except Exception:
-        cost = _DefaultCostCalculator().calculate_cost(weight, distance, speed)
-    return jsonify({'cost': cost})
+@app.route('/api/parcels/search/by-status', methods=['GET'])
+def search_by_status():
+    """Search parcels by status - linear search - O(n)"""
+    status = request.args.get('status')
+    
+    if not status:
+        return jsonify({'error': 'Status parameter required'}), 400
+    
+    all_parcels = parcel_hash_table.get_all()
+    
+    def status_filter(parcel):
+        return parcel.status.value == status
+    
+    matching = SearchingAlgorithms.linear_search(all_parcels, status_filter)
+    
+    return jsonify({
+        'status': status,
+        'count': len(matching),
+        'parcels': [
+            {
+                'tracking_id': p.tracking_id,
+                'sender': p.sender,
+                'recipient': p.recipient,
+                'origin': p.origin,
+                'destination': p.destination
+            }
+            for p in matching
+        ]
+    }), 200
 
-@app.route('/api/reports', methods=['GET'])
-def reports():
-    try:
-        summary = Rpt.summary(parcels_store)
-    except Exception:
-        summary = _DefaultReports().summary(parcels_store)
-    return jsonify(summary)
+@app.route('/api/delivery-queue', methods=['GET'])
+def get_delivery_queue():
+    """Get next parcels for delivery - priority queue - O(1)"""
+    count = int(request.args.get('count', 5))
+    next_parcels = []
+    
+    # Create temporary queue to peek
+    temp_parcel = delivery_queue.peek()
+    
+    return jsonify({
+        'queue_size': delivery_queue.size(),
+        'next_to_deliver': {
+            'tracking_id': temp_parcel.tracking_id,
+            'recipient': temp_parcel.recipient,
+            'destination': temp_parcel.destination,
+            'priority': temp_parcel.priority
+        } if temp_parcel else None
+    }), 200
+
+@app.route('/api/route-optimization', methods=['POST'])
+def optimize_route():
+    """Optimize delivery route - uses Dijkstra's algorithm"""
+    data = request.json
+    start_location = data.get('start')
+    end_location = data.get('end')
+    
+    # Initialize graph with sample locations
+    location_graph.add_edge('Downtown', 'Westlands', 5.2)
+    location_graph.add_edge('Downtown', 'Kilimani', 3.8)
+    location_graph.add_edge('Westlands', 'Parklands', 4.1)
+    location_graph.add_edge('Kilimani', 'Upper Hill', 2.5)
+    location_graph.add_edge('Parklands', 'Upper Hill', 6.3)
+    
+    distance, path = location_graph.dijkstra(start_location, end_location)
+    
+    return jsonify({
+        'start': start_location,
+        'end': end_location,
+        'optimal_distance': distance,
+        'optimal_path': path,
+        'algorithm': 'Dijkstra\'s Shortest Path'
+    }), 200
+
+@app.route('/api/algorithm-analysis', methods=['GET'])
+def get_complexity_analysis():
+    """Get complexity analysis for all algorithms"""
+    from algorithms import ComplexityAnalysis
+    
+    analysis = ComplexityAnalysis.get_complexity_analysis()
+    
+    return jsonify({
+        'algorithms': analysis,
+        'note': 'Time and space complexity for all implemented algorithms'
+    }), 200
+
+@app.route('/api/system-stats', methods=['GET'])
+def get_system_stats():
+    """Get system statistics"""
+    all_parcels = parcel_hash_table.get_all()
+    
+    status_counts = {}
+    for parcel in all_parcels:
+        status = parcel.status.value
+        status_counts[status] = status_counts.get(status, 0) + 1
+    
+    return jsonify({
+        'total_parcels': len(all_parcels),
+        'queue_size': delivery_queue.size(),
+        'status_distribution': status_counts,
+        'data_structures_used': [
+            'Hash Table (O(1) lookup)',
+            'Doubly-Linked List (O(1) insertion)',
+            'Binary Search Tree (O(log n) search)',
+            'Priority Queue/Min-Heap (O(log n) operations)',
+            'Graph (O(V+E) traversal)'
+        ],
+        'algorithms_used': [
+            'Merge Sort O(n log n)',
+            'Binary Search O(log n)',
+            'Dijkstra Shortest Path O((V+E) log V)',
+            'Nearest Neighbor TSP O(n²)',
+            'Priority Queue Management'
+        ]
+    }), 200
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True, port=5000)

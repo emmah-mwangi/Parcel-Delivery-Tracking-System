@@ -1,271 +1,276 @@
-/**
- * UPDATED INDEX.HTML
- * Complete frontend with all required sections and forms
- */
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Parcel Delivery Tracking System</title>
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    :root{--primary:#2b7a78;--accent:#17252a;--muted:#99b2b1}
-    body{font-family:system-ui,Segoe UI,Roboto,Arial;line-height:1.4;color:var(--accent);margin:0;padding:0}
-    header{background:linear-gradient(90deg,var(--primary),#3aa7a4);color:white;padding:1rem}
-    header h1{margin:0;font-size:1.25rem}
-    nav{margin-top:.5rem;display:flex;gap:.5rem;flex-wrap:wrap}
-    nav button{background:rgba(255,255,255,0.12);border:0;padding:.45rem .7rem;border-radius:6px;color:white;cursor:pointer}
-    main{padding:1rem}
-    .view h2{color:var(--primary)}
-    #stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem}
-    .card{background:#fff;border-radius:8px;padding:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-
-    /* Registration form columns (3 containers) */
-    form#register-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;align-items:start}
-    .form-column{background:#fff;padding:1rem;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-    .form-column legend{font-weight:600;margin-bottom:.5rem}
-    .form-column label{display:block;margin-bottom:.5rem;font-size:.95rem}
-    .form-column input,.form-column select{width:100%;padding:.45rem;border:1px solid #e6e6e6;border-radius:6px}
-    .actions{margin-top:1rem}
-
-    /* Manage table */
-    #parcels-table{width:100%;border-collapse:collapse}
-    #parcels-table th,#parcels-table td{border-bottom:1px solid #eee;padding:.5rem;text-align:left}
-
-    /* Reports */
-    #report-content{background:#fff;padding:1rem;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-
-    /* Small helpers */
-    .hidden{display:none}
-    @media (max-width:720px){form#register-form{grid-template-columns:1fr}}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcel Delivery Tracking System - Professional Edition</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <h1>📦 Parcel Delivery Tracking</h1>
-    <nav>
-      <button id="nav-dashboard">Dashboard</button>
-      <button id="nav-register">Register</button>
-      <button id="nav-track">Track</button>
-      <button id="nav-manage">Manage</button>
-      <button id="nav-cost">Calculator</button>
-      <button id="nav-reports">Reports</button>
-    </nav>
-  </header>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-box-open"></i>
+                <h2>TrackParcels</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#track" class="nav-link" data-section="track">
+                    <i class="fas fa-search"></i>
+                    <span>Track Parcel</span>
+                </a>
+                <a href="#create" class="nav-link" data-section="create">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Create Parcel</span>
+                </a>
+                <a href="#parcels" class="nav-link" data-section="parcels">
+                    <i class="fas fa-list"></i>
+                    <span>All Parcels</span>
+                </a>
+                <a href="#queue" class="nav-link" data-section="queue">
+                    <i class="fas fa-truck"></i>
+                    <span>Delivery Queue</span>
+                </a>
+                <a href="#routes" class="nav-link" data-section="routes">
+                    <i class="fas fa-map"></i>
+                    <span>Route Optimization</span>
+                </a>
+                <a href="#analytics" class="nav-link" data-section="analytics">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </a>
+            </nav>
+        </aside>
 
-  <main>
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="view">
-      <h2>Dashboard</h2>
-      <div id="stats">
-        <div class="card">
-          <h3>Total Parcels</h3>
-          <p id="stat-total">0</p>
-        </div>
-        <div class="card">
-          <h3>Registered</h3>
-          <p id="stat-registered">0</p>
-        </div>
-        <div class="card">
-          <h3>In Transit</h3>
-          <p id="stat-transit">0</p>
-        </div>
-        <div class="card">
-          <h3>Delivered</h3>
-          <p id="stat-delivered">0</p>
-        </div>
-        <div class="card">
-          <h3>Delivery Rate</h3>
-          <p id="stat-rate">0%</p>
-        </div>
-        <div class="card">
-          <h3>Total Revenue</h3>
-          <p id="stat-revenue">Ksh 0</p>
-        </div>
-      </div>
-    </section>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1>Parcel Delivery Tracking System</h1>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Administrator</span>
+                    </div>
+                </div>
+            </header>
 
-    <!-- REGISTER PARCEL (3 containers) -->
-    <section id="register" class="view hidden">
-      <h2>Register Parcel</h2>
-      <form id="register-form">
-        <div class="form-column">
-          <fieldset>
-            <legend>Sender Details</legend>
-            <label>Sender Name
-              <input name="senderName" required>
-            </label>
-            <label>Phone
-              <input name="senderPhone" type="tel">
-            </label>
-            <label>Email
-              <input name="senderEmail" type="email">
-            </label>
-            <label>Pickup Location
-              <input name="pickupLocation">
-            </label>
-          </fieldset>
-        </div>
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                    <p>System Overview & Key Metrics</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon pending">
+                            <i class="fas fa-hourglass-start"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="stat-pending">0</h3>
+                            <p>Pending Parcels</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon transit">
+                            <i class="fas fa-truck-moving"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="stat-transit">0</h3>
+                            <p>In Transit</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon delivery">
+                            <i class="fas fa-map-pin"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="stat-delivery">0</h3>
+                            <p>Out for Delivery</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon delivered">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="stat-delivered">0</h3>
+                            <p>Delivered</p>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="form-column">
-          <fieldset>
-            <legend>Receiver Details</legend>
-            <label>Receiver Name
-              <input name="receiverName" required>
-            </label>
-            <label>Phone
-              <input name="receiverPhone" type="tel">
-            </label>
-            <label>Email
-              <input name="receiverEmail" type="email">
-            </label>
-            <label>Delivery Location
-              <input name="deliveryLocation" required>
-            </label>
-          </fieldset>
-        </div>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>System Statistics</h3>
+                        <div id="system-stats" class="stats-list">
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Data Structures Used</h3>
+                        <ul class="tech-list">
+                            <li>Hash Table (O(1) lookup)</li>
+                            <li>Doubly-Linked List (O(1) insertion)</li>
+                            <li>Binary Search Tree (O(log n))</li>
+                            <li>Priority Queue/Min-Heap</li>
+                            <li>Graph Structure</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
 
-        <div class="form-column">
-          <fieldset>
-            <legend>Parcel Details</legend>
-            <label>Description
-              <input name="parcelDescription">
-            </label>
-            <label>Weight (kg)
-              <input name="weight" type="number" step="0.01" required>
-            </label>
-            <label>Delivery Type
-              <select name="deliveryType">
-                <option value="standard">Standard</option>
-                <option value="express">Express (+300 KSh)</option>
-              </select>
-            </label>
-            <label><input name="isFragile" type="checkbox"> Fragile (+200 KSh)</label>
-          </fieldset>
+            <!-- Track Parcel Section -->
+            <section id="track" class="section">
+                <div class="section-header">
+                    <h2>Track Your Parcel</h2>
+                    <p>Enter your tracking ID to monitor delivery status</p>
+                </div>
+                <div class="card">
+                    <div class="search-box">
+                        <input type="text" id="tracking-id" placeholder="Enter Tracking ID (e.g., PKL-XXXXX)" class="input-field">
+                        <button onclick="searchParcel()" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                <div id="track-result" class="card hidden">
+                    <div id="tracking-details"></div>
+                    <div id="location-history" class="timeline"></div>
+                </div>
+            </section>
 
-          <div class="actions">
-            <button type="submit">Register Parcel</button>
-            <div id="register-result" style="margin-top:.5rem"></div>
-          </div>
-        </div>
-      </form>
-    </section>
+            <!-- Create Parcel Section -->
+            <section id="create" class="section">
+                <div class="section-header">
+                    <h2>Create New Parcel</h2>
+                    <p>Register a new parcel for delivery</p>
+                </div>
+                <div class="card form-card">
+                    <form id="create-form" onsubmit="createParcel(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Sender Name *</label>
+                                <input type="text" name="sender" required class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>Recipient Name *</label>
+                                <input type="text" name="recipient" required class="input-field">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Origin Location *</label>
+                                <input type="text" name="origin" required class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>Destination Location *</label>
+                                <input type="text" name="destination" required class="input-field">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Weight (kg) *</label>
+                                <input type="number" name="weight" min="0.1" step="0.1" required class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label>Priority Level (1-10) *</label>
+                                <input type="number" name="priority" min="1" max="10" value="5" required class="input-field">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i class="fas fa-paper-plane"></i> Create Parcel
+                        </button>
+                    </form>
+                    <div id="create-message" class="hidden"></div>
+                </div>
+            </section>
 
-    <!-- TRACK PARCEL -->
-    <section id="track" class="view hidden">
-      <h2>Track Parcel</h2>
-      <form id="track-form">
-        <label>Search by:
-          <select id="track-type">
-            <option value="trackingNumber">Tracking Number</option>
-            <option value="senderName">Sender Name</option>
-            <option value="senderPhone">Sender Phone</option>
-            <option value="receiverName">Receiver Name</option>
-            <option value="receiverPhone">Receiver Phone</option>
-          </select>
-        </label>
-        <label>Search Value
-          <input id="track-value" required>
-        </label>
-        <button type="submit">Track</button>
-      </form>
-      <div id="track-result"></div>
-    </section>
+            <!-- All Parcels Section -->
+            <section id="parcels" class="section">
+                <div class="section-header">
+                    <h2>All Parcels</h2>
+                    <p>View and manage all registered parcels</p>
+                </div>
+                <div class="card">
+                    <div class="filter-controls">
+                        <select id="sort-by" class="input-field">
+                            <option value="priority">Sort by Priority</option>
+                            <option value="created_at">Sort by Date</option>
+                            <option value="weight">Sort by Weight</option>
+                        </select>
+                        <button onclick="loadParcels()" class="btn btn-secondary">
+                            <i class="fas fa-refresh"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="parcels-table" class="table-responsive">
+                        <p>Loading...</p>
+                    </div>
+                </div>
+            </section>
 
-    <!-- MANAGE PARCELS (simplified controls) -->
-    <section id="manage" class="view hidden">
-      <h2>Manage Parcels</h2>
-      <div id="sort-controls">
-        <label>Sort by: <select id="sort-field">
-          <option value="trackingNumber">Tracking Number</option>
-          <option value="deliveryLocation">Destination</option>
-          <option value="status">Status</option>
-          <option value="cost">Cost</option>
-        </select></label>
-        <button id="sort-btn">Sort</button>
-      </div>
-      <table id="parcels-table">
-        <thead>
-          <tr>
-            <th>Tracking</th>
-            <th>Sender</th>
-            <th>Receiver</th>
-            <th>Destination</th>
-            <th>Status</th>
-            <th>Cost</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
+            <!-- Delivery Queue Section -->
+            <section id="queue" class="section">
+                <div class="section-header">
+                    <h2>Delivery Queue</h2>
+                    <p>Next parcels scheduled for delivery (Priority-based)</p>
+                </div>
+                <div class="card">
+                    <div id="queue-info"></div>
+                </div>
+            </section>
 
-    <!-- COST CALCULATOR -->
-    <section id="cost" class="view hidden">
-      <h2>Cost Calculator</h2>
-      <form id="cost-form">
-        <label>Weight (kg)
-          <input id="calc-weight" name="weight" type="number" step="0.01" value="1" required>
-        </label>
-        <label>Delivery Type
-          <select id="calc-type">
-            <option value="standard">Standard</option>
-            <option value="express">Express (+300 KSh)</option>
-          </select>
-        </label>
-        <label><input id="calc-fragile" type="checkbox"> Fragile (+200 KSh)</label>
-        <button type="submit">Calculate</button>
-      </form>
-      <div id="cost-result"></div>
-      <div class="cost-breakdown">
-        <p><strong>Cost Formula:</strong></p>
-        <p>Base Fee: 300 KSh</p>
-        <p>Weight Charge: Weight × 100 KSh</p>
-        <p>Express: +300 KSh</p>
-        <p>Fragile: +200 KSh</p>
-      </div>
-    </section>
+            <!-- Route Optimization Section -->
+            <section id="routes" class="section">
+                <div class="section-header">
+                    <h2>Route Optimization</h2>
+                    <p>Find the most efficient delivery route</p>
+                </div>
+                <div class="card form-card">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Location</label>
+                            <input type="text" id="route-start" placeholder="e.g., Downtown" class="input-field">
+                        </div>
+                        <div class="form-group">
+                            <label>End Location</label>
+                            <input type="text" id="route-end" placeholder="e.g., Westlands" class="input-field">
+                        </div>
+                        <button onclick="optimizeRoute()" class="btn btn-primary" style="margin-top: 20px;">
+                            <i class="fas fa-route"></i> Optimize
+                        </button>
+                    </div>
+                </div>
+                <div id="route-result" class="card hidden">
+                    <div id="route-details"></div>
+                </div>
+            </section>
 
-    <!-- REPORTS (system-only) -->
-    <section id="reports" class="view hidden">
-      <h2>Reports (System Data Only)</h2>
-      <div id="report-content">
-        <div style="display:flex;gap:1rem;flex-wrap:wrap">
-          <div style="flex:1;min-width:200px">
-            <h3>📊 Parcel Statistics</h3>
-            <p>Total Parcels: <strong id="rep-total">0</strong></p>
-            <p>Registered: <strong id="rep-registered">0</strong></p>
-            <p>In Transit: <strong id="rep-transit">0</strong></p>
-            <p>Delivered: <strong id="rep-delivered">0</strong></p>
-            <p>Delivery Rate: <strong id="rep-rate">0%</strong></p>
-            <p>Total Revenue: <strong id="rep-revenue">Ksh 0</strong></p>
-          </div>
-          <div style="flex:1;min-width:200px">
-            <h3>📍 Most Common Destination</h3>
-            <p id="rep-top-dest">N/A</p>
+            <!-- Analytics Section -->
+            <section id="analytics" class="section">
+                <div class="section-header">
+                    <h2>Algorithm Analysis</h2>
+                    <p>Complexity analysis of implemented algorithms</p>
+                </div>
+                <div class="card">
+                    <div id="complexity-analysis"></div>
+                </div>
+            </section>
+        </main>
+    </div>
 
-            <h3 style="margin-top:1rem">⏳ Processing Queue (FIFO)</h3>
-            <p>Parcels waiting: <strong id="rep-queue-count">0</strong></p>
-            <p>Next to process: <strong id="rep-queue-next">None</strong></p>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top:1rem;display:flex;gap:.5rem">
-        <button id="print-btn">Print Report</button>
-        <button id="export-csv-btn">Export to CSV</button>
-      </div>
-    </section>
-  </main>
-
-  <!-- SCRIPTS -->
-  <script src="dataStructures.js"></script>
-  <script src="algorithms.js"></script>
-  <script src="storage.js"></script>
-  <script src="calculations.js"></script>
-  <script src="parcelManager.js"></script>
-  <script src="app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
